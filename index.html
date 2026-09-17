@@ -1851,6 +1851,15 @@ function render2Mobile(){
   });
 }
 
+const mobileExpandedAsmCustomers=new Set();
+function buildMobileCustomerPanel(p,asm){
+  const custs=getAsmCusts(asm).map(c=>({c,nsi:getCustNsiForProd(p,asm,c)})).filter(x=>x.nsi>0).sort((a,b)=>b.nsi-a.nsi);
+  if(!custs.length)return '<div class="mob-cust-panel"><div class="mob-more">No customer-level sales for this product / ASM in the selected period.</div></div>';
+  return '<div class="mob-cust-panel"><div class="mob-cust-head"><span>Customers</span><span>'+custs.length+'</span></div>'+
+    custs.map(x=>'<div class="mob-cust-row"><span class="mob-cust-name">'+escM(x.c)+'</span><span class="mob-cust-val">'+fC(x.nsi)+'</span></div>').join('')+
+    '</div>';
+}
+
 function render2(){
   const az=actZones();
   const rows=filteredProds2().map(p=>{
