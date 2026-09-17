@@ -337,6 +337,328 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 #t3table thead th.col-s8{position:sticky!important;left:743px!important;z-index:37!important;background:#091828!important;border-right:2px solid var(--accent)!important;}
 /* ── Tab2 Grand Total header ── */
 #zt thead th.col-s8{position:sticky!important;left:743px!important;z-index:37!important;background:#091828!important;}
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE MOBILE REPORT
+   Desktop tables remain unchanged; mobile switches to cards.
+═══════════════════════════════════════════════════════════ */
+.mobile-view{display:none;}
+.mobile-only{display:none;}
+
+@media(max-width:768px){
+  body{background:#eef1f6;overflow-x:hidden;}
+  header{
+    padding:10px 12px 9px;
+    gap:8px;
+    align-items:flex-start;
+  }
+  .brand{min-width:0;flex:1;}
+  .brand h1{font-size:14px;line-height:1.25;}
+  .brand p{font-size:9.8px;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:65vw;}
+  .brand p.upd{font-size:9px;}
+  .hdr-r{gap:7px;flex-shrink:0;}
+  .sku-badge{font-size:10px;padding:5px 9px;}
+  .btn-hdr{font-size:11px;padding:8px 11px;white-space:nowrap;}
+
+  .tabnav{
+    position:sticky;
+    top:62px;
+    padding:0 8px;
+    gap:0;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+  }
+  .tabnav::-webkit-scrollbar{display:none;}
+  .tabnav button{
+    flex:0 0 auto;
+    font-size:11.5px;
+    padding:10px 13px 9px;
+  }
+
+  .tabpage{padding:8px 8px 20px;}
+  .fbar{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    padding:8px;
+    margin-bottom:9px;
+    overflow:visible;
+  }
+  .fbar select{
+    min-width:0;
+    width:100%;
+    font-size:11px;
+    padding:8px 7px;
+  }
+  .fbar .btog{
+    grid-column:1/-1;
+    width:100%;
+    justify-content:stretch;
+  }
+  .fbar .btog button{flex:1;font-size:11px;padding:7px 8px;}
+  .fbar .srch{grid-column:1/-1;min-width:0;width:100%;}
+  .fbar .srch input{font-size:11px;padding:8px 8px 8px 28px;}
+  .fbar .btn-clr{width:100%;font-size:11px;padding:8px;}
+
+  .kpi-row{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:7px;
+    margin-bottom:9px;
+  }
+  .kpi{
+    padding:9px 10px;
+    min-width:0;
+    border-radius:9px;
+  }
+  .kpi-l{font-size:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .kpi-v{font-size:15px;line-height:1.15;}
+  .kpi-s{font-size:9px;line-height:1.2;}
+  .kpi.gr,.kpi.rd{min-width:0;}
+
+  .desktop-t{display:none!important;}
+  .mobile-view{display:block;}
+  #ztMob,#t3Mob{width:100%;}
+
+  .mob-cnt{
+    font-size:10.5px;
+    color:var(--muted);
+    padding:2px 2px 7px;
+  }
+  .mob-card{
+    background:var(--card);
+    border-radius:12px;
+    padding:10px;
+    margin-bottom:8px;
+    box-shadow:0 1px 4px rgba(0,0,0,.07);
+    border:1px solid #e7eaf0;
+  }
+  .mc-hd{
+    display:flex;
+    gap:9px;
+    align-items:flex-start;
+    margin-bottom:8px;
+  }
+  .mc-photo{
+    width:64px;
+    height:64px;
+    border-radius:9px;
+    border:1px solid var(--line);
+    object-fit:contain;
+    background:#f4f6fa;
+    flex:0 0 64px;
+  }
+  .mc-inf{min-width:0;flex:1;}
+  .mc-nm{
+    font-size:13px;
+    font-weight:700;
+    line-height:1.28;
+    margin-bottom:3px;
+  }
+  .mc-cd{
+    font-size:10px;
+    color:var(--muted);
+    font-family:monospace;
+    margin-bottom:4px;
+  }
+  .mc-bd{display:flex;gap:4px;flex-wrap:wrap;}
+  .mc-bd .tag,.mc-bd .bd,.mc-bd .to-badge,.mc-bd .prio-badge{font-size:8.5px;padding:2px 6px;}
+  .mc-g{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:6px;
+    margin-bottom:7px;
+  }
+  .mc-it{
+    background:#f0f3f8;
+    border-radius:8px;
+    padding:7px 9px;
+    min-width:0;
+  }
+  .mc-il{font-size:8.5px;margin-bottom:2px;}
+  .mc-iv{font-size:12.5px;font-weight:800;line-height:1.15;word-break:break-word;}
+  .mc-iv.g{color:var(--good);}
+  .mc-iv.pu{color:var(--purple);}
+  .mc-iv.bl{color:var(--info);}
+  .mc-iv.b{color:var(--bad);}
+
+  .mob-section{
+    border-top:1px solid var(--line);
+    padding-top:7px;
+    margin-top:7px;
+  }
+  .mob-section-title{
+    font-size:9px;
+    font-weight:800;
+    text-transform:uppercase;
+    letter-spacing:.55px;
+    color:var(--muted);
+    margin-bottom:5px;
+  }
+
+  .mob-zone-row,.mob-asm-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:7px;
+    padding:7px 9px;
+    margin-bottom:4px;
+    background:#eef2f7;
+    border-radius:8px;
+    min-height:31px;
+  }
+  .mob-zsm-row{
+    cursor:pointer;
+    user-select:none;
+    background:#eaf0f7;
+    transition:background .12s ease;
+  }
+  .mob-zsm-row:hover,.mob-zsm-row.open{background:#e2ebf5;}
+  .mob-zsm-row .left{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    min-width:0;
+    flex:1;
+  }
+  .mob-zsm-chevron{
+    width:18px;
+    height:18px;
+    border-radius:50%;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    flex:0 0 18px;
+    background:#dbe4ef;
+    color:#4c5c73;
+    font-size:10px;
+    font-weight:800;
+    transition:transform .15s ease,background .15s ease;
+  }
+  .mob-zsm-row.open .mob-zsm-chevron{
+    transform:rotate(180deg);
+    background:#d4e1ef;
+  }
+  .mob-asm-list{
+    margin:0 0 5px 25px;
+    padding:2px 0 2px 8px;
+    border-left:2px solid #d7e2ef;
+  }
+  .mob-asm-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:7px;
+    padding:6px 9px;
+    margin-bottom:3px;
+    background:#f7f9fc;
+    border-radius:7px;
+    min-height:29px;
+  }
+  .mob-asm-item .lbl{
+    min-width:0;
+    flex:1;
+    font-size:10.4px;
+    color:#3a4658;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .mob-asm-item .val{
+    flex:0 0 auto;
+    color:var(--good);
+    font-size:10.6px;
+    font-weight:800;
+  }
+  .mob-zone-row .lbl,.mob-asm-row .lbl{
+    min-width:0;
+    flex:1;
+    font-size:10.8px;
+    font-weight:600;
+    color:#273245;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    white-space:nowrap;
+  }
+  .mob-zone-row .val,.mob-asm-row .val{
+    flex:0 0 auto;
+    color:var(--good);
+    font-size:11px;
+    font-weight:800;
+  }
+  .mob-asm-row{
+    cursor:pointer;
+    user-select:none;
+    transition:background .12s ease;
+  }
+  .mob-asm-row:hover,.mob-asm-row.open{background:#e8eff8;}
+  .mob-asm-row .left{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    min-width:0;
+    flex:1;
+  }
+  .mob-chevron{
+    width:18px;height:18px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    background:#d9e1ec;color:#526174;font-size:9px;font-weight:800;
+    flex:0 0 18px;
+  }
+  .mob-asm-row.open .mob-chevron{transform:rotate(180deg);}
+  .mob-cust-panel{
+    margin:0 0 5px 25px;
+    padding:5px 7px 5px 8px;
+    background:#f7f9fc;
+    border-left:2px solid #cfd9e7;
+    border-radius:0 8px 8px 0;
+  }
+  .mob-cust-head{
+    display:flex;justify-content:space-between;gap:5px;
+    color:var(--muted);font-size:8.5px;font-weight:700;
+    padding:0 3px 4px;text-transform:uppercase;letter-spacing:.35px;
+  }
+  .mob-cust-row{
+    display:flex;align-items:center;justify-content:space-between;gap:6px;
+    padding:6px 5px;
+    border-radius:6px;
+    background:#eef2f7;
+    margin-bottom:3px;
+  }
+  .mob-cust-row:last-child{margin-bottom:0;}
+  .mob-cust-name{
+    flex:1;min-width:0;
+    font-size:10px;color:#394457;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .mob-cust-val{
+    flex:0 0 auto;font-size:10px;font-weight:800;color:var(--info);
+  }
+  .mob-more{
+    text-align:center;font-size:9px;color:var(--muted);padding:5px 0 1px;
+  }
+  .mob-pill{
+    display:inline-flex;align-items:center;gap:4px;
+    background:#edf3ff;color:#315b94;border:1px solid #d7e4f7;
+    border-radius:999px;padding:3px 7px;font-size:8.5px;font-weight:700;
+  }
+
+  /* Tab 3: keep each product compact, with customer detail available on demand */
+  #tab3 .fbar{margin-top:0;}
+  #tab3 .fbar + .kpi-row{margin-top:0;}
+  .t3-mobile-card .mc-hd{margin-bottom:7px;}
+  .t3-mobile-card .mob-section-title{display:flex;justify-content:space-between;align-items:center;}
+  .t3-mobile-card .asm-count{font-size:8.5px;color:var(--muted);font-weight:600;text-transform:none;letter-spacing:0;}
+
+  @media(max-width:390px){
+    .brand p{max-width:61vw;}
+    .btn-hdr{font-size:10.5px;padding:7px 9px;}
+    .sku-badge{padding:5px 8px;}
+    .kpi-v{font-size:14px;}
+    .mc-nm{font-size:12.5px;}
+  }
+}
+
 </style>
 </head>
 <body data-new-gr-c-s-check-loaded="14.1329.0" data-gr-ext-installed="">
@@ -878,6 +1200,66 @@ function renderT3Table(){
   body.innerHTML=html;
 }
 
+
+function render3Mobile(){
+  const c=document.getElementById('t3Mob');if(!c)return;
+  const asms=actT3Asms();
+  let rows=filteredT3Prods().map(p=>{
+    const asmRows=asms.map(a=>({a,nsi:getAsmNsiForProd(p,a)})).filter(x=>x.nsi>0).sort((a,b)=>b.nsi-a.nsi);
+    const total=asmRows.reduce((s,x)=>s+x.nsi,0);
+    return Object.assign({},p,{_asmRows:asmRows,_total:total});
+  });
+  rows.sort((a,b)=>{
+    if(t3sk==='name')return t3sd==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name);
+    if(t3sk==='code')return t3sd==='asc'?a.code.localeCompare(b.code):b.code.localeCompare(a.code);
+    if(t3sk==='stock')return t3sd==='asc'?a.stock-b.stock:b.stock-a.stock;
+    if(t3sk==='totalDp')return t3sd==='asc'?a.totalDp-b.totalDp:b.totalDp-a.totalDp;
+    if(t3sk.startsWith('asm:')){
+      const aa=t3sk.slice(4);
+      const av=a._asmRows.find(x=>x.a===aa)?.nsi||0;
+      const bv=b._asmRows.find(x=>x.a===aa)?.nsi||0;
+      return t3sd==='asc'?av-bv:bv-av;
+    }
+    return t3sd==='asc'?a._total-b._total:b._total-a._total;
+  });
+  const period=(s2.month||s2.year)?' · '+[s2.month,s2.year].filter(Boolean).join(' '):'';
+  let html='<div class="mob-cnt">'+rows.length+' products'+period+(s2.zone?' · '+escM(s2.zone):'')+(s2.asm?' · '+escM(s2.asm):'')+'</div>';
+  if(!rows.length){c.innerHTML=html+'<div class="mob-card"><div class="mob-section-title">No products match the current filters.</div></div>';return;}
+  html+=rows.map(p=>{
+    const openKeys=(p._asmRows||[]).filter(r=>mobileExpandedAsmCustomers.has(p.code+'|'+r.a)).length;
+    const cards=(p._asmRows||[]).map(r=>{
+      const key=p.code+'|'+r.a;
+      const open=mobileExpandedAsmCustomers.has(key);
+      return '<div class="mob-asm-row'+(open?' open':'')+'" data-p="'+escM(p.code)+'" data-asm="'+escM(r.a)+'">'+
+        '<div class="left"><span class="mob-chevron">▼</span><span class="lbl">'+escM(r.a)+'</span></div>'+
+        '<span class="val">'+fB(r.nsi)+'</span></div>'+
+        (open?buildMobileCustomerPanel(p,r.a):'');
+    }).join('');
+    return '<div class="mob-card t3-mobile-card">'+
+      '<div class="mc-hd">'+mobilePhoto(p)+
+        '<div class="mc-inf"><div class="mc-nm">'+escM(p.name)+'</div>'+
+        '<div class="mc-cd">ACI '+escM(p.code)+'</div>'+
+        '<div class="mc-bd">'+mobileBadges(p)+'</div></div></div>'+
+      '<div class="mc-g">'+
+        '<div class="mc-it"><div class="mc-il">Stock</div><div class="mc-iv '+(p.stock<=0?'b':'')+'">'+fN(p.stock)+'</div></div>'+
+        '<div class="mc-it"><div class="mc-il">DP Value</div><div class="mc-iv pu">'+fC(p.totalDp)+'</div></div>'+
+        '<div class="mc-it"><div class="mc-il">Grand Total</div><div class="mc-iv g">'+fC(p._total)+'</div></div>'+
+        '<div class="mc-it"><div class="mc-il">ASM Count</div><div class="mc-iv">'+(p._asmRows?p._asmRows.length:0)+'</div></div>'+
+      '</div>'+
+      (cards?'<div class="mob-section"><div class="mob-section-title">ASM Performance <span class="asm-count">'+(p._asmRows||[]).length+' ASM'+((p._asmRows||[]).length===1?'':'s')+' · '+openKeys+' open</span></div>'+cards+'</div>':'')+
+    '</div>';
+  }).join('');
+  c.innerHTML=html;
+  c.querySelectorAll('.mob-asm-row').forEach(row=>{
+    row.onclick=function(){
+      const key=this.dataset.p+'|'+this.dataset.asm;
+      if(mobileExpandedAsmCustomers.has(key))mobileExpandedAsmCustomers.delete(key);
+      else mobileExpandedAsmCustomers.add(key);
+      render3Mobile();
+    };
+  });
+}
+
 function render3(){
   buildT3Header();
 
@@ -908,6 +1290,7 @@ function render3(){
   if(el('t3k5s'))el('t3k5s').textContent=unp.length+' SKUs · unpriced sales';
 
   renderT3Table();
+  render3Mobile();
 }
 
 function processFile(file){
@@ -1301,6 +1684,173 @@ function buildTotalsRow(az,zTotals,aTotals,grandTotal){
   return row;
 }
 
+
+function escM(v){
+  return String(v==null?'':v).replace(/[&<>"']/g,function(ch){
+    return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[ch];
+  });
+}
+function mobilePhoto(p){
+  const url='http://imghw.nbdeli.com/'+p.sap+'/1.jpg';
+  return '<img class="mc-photo" src="'+url+'" alt="'+escM(p.name)+'" loading="lazy" onerror="this.style.display=\'none\'">';
+}
+function mobileBadges(p){
+  const cat=p.category&&p.category!=='nan'?p.category:'—';
+  const bc=p.brand==='Deli'?'bd-d':(p.brand==='iSelect'?'bd-i':'bd-o');
+  let h='<span class="tag" style="'+cs(p.category)+'">'+escM(cat)+'</span>'+
+        '<span class="bd '+bc+'">'+escM(p.brand||'—')+'</span>';
+  if(TRADE_OFFER_CODES.has(p.code))h+='<span class="to-badge">OFFER</span>';
+  if(PRIORITY_MAP[p.code]){
+    const urgent=PRIORITY_MAP[p.code]==='Urgent & Topmost Priority';
+    h+='<span class="prio-badge '+(urgent?'prio-u':'prio-p')+'">'+(urgent?'Urgent':'Priority')+'</span>';
+  }
+  if(p.inMaster===false)h+='<span class="npl">Not in PL</span>';
+  return h;
+}
+function getProductAsmRows(p){
+  const map={};
+  (p.asmMonthly||[]).forEach(r=>{
+    if(s2.zone&&r.z!==s2.zone)return;
+    if(s2.year&&r.y!=s2.year)return;
+    if(s2.month&&r.m!==s2.month)return;
+    map[r.a]=(map[r.a]||0)+r.nsi;
+  });
+  return Object.keys(map).map(a=>({a,nsi:map[a]})).filter(x=>x.nsi>0).sort((a,b)=>b.nsi-a.nsi);
+}
+function getProductZoneRows(p){
+  const map={};
+  (p.zoneMonthly||[]).forEach(r=>{
+    if(s2.year&&r.y!=s2.year)return;
+    if(s2.month&&r.m!==s2.month)return;
+    map[r.z]=(map[r.z]||0)+r.nsi;
+  });
+  return Object.keys(map).map(z=>({z,nsi:map[z]})).filter(x=>x.nsi>0).sort((a,b)=>b.nsi-a.nsi);
+}
+const mobileExpandedZsms=new Set();
+
+function getProductZoneRowsWithAsm(p){
+  const zoneMap={};
+  (p.zoneMonthly||[]).forEach(r=>{
+    if(s2.year&&r.y!=s2.year)return;
+    if(s2.month&&r.m!==s2.month)return;
+    if(s2.zone&&r.z!==s2.zone)return;
+    zoneMap[r.z]=(zoneMap[r.z]||0)+r.nsi;
+  });
+  return Object.keys(zoneMap)
+    .map(z=>({z,nsi:zoneMap[z]}))
+    .filter(x=>x.nsi>0)
+    .sort((a,b)=>b.nsi-a.nsi)
+    .map(zr=>{
+      const asmMap={};
+      (p.asmMonthly||[]).forEach(r=>{
+        if(r.z!==zr.z)return;
+        if(s2.year&&r.y!=s2.year)return;
+        if(s2.month&&r.m!==s2.month)return;
+        if(s2.asm&&r.a!==s2.asm)return;
+        asmMap[r.a]=(asmMap[r.a]||0)+r.nsi;
+      });
+      const asms=Object.keys(asmMap)
+        .map(a=>({a,nsi:asmMap[a]}))
+        .filter(x=>x.nsi>0)
+        .sort((a,b)=>b.nsi-a.nsi);
+      return Object.assign(zr,{asms});
+    });
+}
+
+function render2Mobile(){
+  const c=document.getElementById('ztMob');
+  if(!c)return;
+  const az=actZones();
+  let rows=filteredProds2().map(p=>{
+    const zv={};
+    az.forEach(z=>zv[z]=0);
+    (p.zoneMonthly||[]).forEach(r=>{
+      if(az.indexOf(r.z)<0)return;
+      if(s2.year&&r.y!=s2.year)return;
+      if(s2.month&&r.m!==s2.month)return;
+      zv[r.z]=(zv[r.z]||0)+r.nsi;
+    });
+    const total=az.reduce((sum,z)=>sum+(zv[z]||0),0);
+    const zsmRows=getProductZoneRowsWithAsm(p);
+    const selectedTotal=s2.asm
+      ? (p.asmMonthly||[]).filter(r=>{
+          if(r.a!==s2.asm)return false;
+          if(s2.zone&&r.z!==s2.zone)return false;
+          if(s2.year&&r.y!=s2.year)return false;
+          if(s2.month&&r.m!==s2.month)return false;
+          return true;
+        }).reduce((sum,r)=>sum+r.nsi,0)
+      : total;
+    return Object.assign({},p,{_zv:zv,_total:total,_sortTotal:selectedTotal,_zsmRows:zsmRows});
+  });
+
+  rows.sort((a,b)=>{
+    if(zsk==='name')return zsd==='asc'?a.name.localeCompare(b.name):b.name.localeCompare(a.name);
+    if(zsk==='code')return zsd==='asc'?a.code.localeCompare(b.code):b.code.localeCompare(a.code);
+    if(zsk==='stock')return zsd==='asc'?a.stock-b.stock:b.stock-a.stock;
+    if(zsk==='totalDp')return zsd==='asc'?a.totalDp-b.totalDp:b.totalDp-a.totalDp;
+    return zsd==='asc'?a._sortTotal-b._sortTotal:b._sortTotal-a._sortTotal;
+  });
+
+  const period=(s2.month||s2.year)?' · '+[s2.month,s2.year].filter(Boolean).join(' '):'';
+  let html='<div class="mob-cnt">'+rows.length+' products'+period+(s2.zone?' · '+escM(s2.zone):'')+'</div>';
+  if(!rows.length){
+    c.innerHTML=html+'<div class="mob-card"><div class="mob-section-title">No products match the current filters.</div></div>';
+    return;
+  }
+
+  html+=rows.map(p=>{
+    const np=p.inMaster===false;
+    const zsmRows=p._zsmRows||[];
+    let card='<div class="mob-card">';
+    card+='<div class="mc-hd">'+mobilePhoto(p);
+    card+='<div class="mc-inf"><div class="mc-nm">'+escM(p.name)+'</div>';
+    card+='<div class="mc-cd">ACI '+escM(p.code)+(np?' · Not in Price List':'')+'</div>';
+    card+='<div class="mc-bd">'+mobileBadges(p)+'</div></div></div>';
+    card+='<div class="mc-g">';
+    card+='<div class="mc-it"><div class="mc-il">Stock</div><div class="mc-iv '+(p.stock<=0?'b':'')+'">'+(np?'n/a':fN(p.stock))+'</div></div>';
+    card+='<div class="mc-it"><div class="mc-il">DP Value</div><div class="mc-iv pu">'+(np?'n/a':fC(p.totalDp))+'</div></div>';
+    card+='<div class="mc-it"><div class="mc-il">Grand Total</div><div class="mc-iv g">'+(p._sortTotal>0?fC(p._sortTotal):'৳0')+'</div></div>';
+    card+='<div class="mc-it"><div class="mc-il">Category</div><div class="mc-iv" style="font-size:11px;">'+escM(p.category||'—')+'</div></div>';
+    card+='</div>';
+
+    if(zsmRows.length){
+      card+='<div class="mob-section"><div class="mob-section-title">ZSM / Zone Performance</div>';
+      zsmRows.forEach(zr=>{
+        const key=p.code+'|'+zr.z;
+        const open=mobileExpandedZsms.has(key);
+        card+='<div class="mob-zone-row mob-zsm-row'+(open?' open':'')+'" data-p="'+escM(p.code)+'" data-zone="'+escM(zr.z)+'">';
+        card+='<div class="left"><span class="mob-zsm-chevron">▼</span><span class="lbl">'+escM(zr.z)+'</span></div>';
+        card+='<span class="val">'+fB(zr.nsi)+'</span></div>';
+        if(open){
+          card+='<div class="mob-asm-list">';
+          if(zr.asms.length){
+            zr.asms.forEach(a=>{
+              card+='<div class="mob-asm-item"><span class="lbl">'+escM(a.a)+'</span><span class="val">'+fB(a.nsi)+'</span></div>';
+            });
+          }else{
+            card+='<div class="mob-more">No ASM sales for this ZSM in the selected period.</div>';
+          }
+          card+='</div>';
+        }
+      });
+      card+='</div>';
+    }
+    card+='</div>';
+    return card;
+  }).join('');
+
+  c.innerHTML=html;
+  c.querySelectorAll('.mob-zsm-row').forEach(row=>{
+    row.onclick=function(){
+      const key=this.dataset.p+'|'+this.dataset.zone;
+      if(mobileExpandedZsms.has(key))mobileExpandedZsms.delete(key);
+      else mobileExpandedZsms.add(key);
+      render2Mobile();
+    };
+  });
+}
+
 function render2(){
   const az=actZones();
   const rows=filteredProds2().map(p=>{
@@ -1321,6 +1871,7 @@ function render2(){
   document.getElementById('zk5').textContent=gN>0?fB(gN):'৳0';document.getElementById('zk5s').textContent=unp.length+' SKUs · unpriced sales';
   buildZoneTableHeader();
   renderZoneTable();
+  render2Mobile();
   // Tab 3 shares s2 filters — refresh it too if it's active
   var tab3El=document.getElementById('tab3');
   if(tab3El&&tab3El.classList.contains('active')){try{render3();}catch(e){}}
@@ -1587,5 +2138,6 @@ setTimeout(function(){
       </table>
     </div>
   </div>
+  <div id="t3Mob" class="mobile-view"></div>
 </div>
 <grammarly-desktop-integration data-grammarly-shadow-root="true" style="visibility: visible !important;"></grammarly-desktop-integration></body></html>
