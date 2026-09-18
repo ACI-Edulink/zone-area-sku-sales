@@ -788,7 +788,6 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
     <div class="kpi bl"><div class="kpi-l">Total Current Stock</div><div class="kpi-v" id="zk2">37.30 L</div><div class="kpi-s">Units in warehouse</div></div>
     <div class="kpi pu"><div class="kpi-l">Total Stock DP Value</div><div class="kpi-v" id="zk3">৳15.76 Cr</div><div class="kpi-s">Inventory at cost (৳)</div></div>
     <div class="kpi gr"><div class="kpi-l">Top Zone (by NSI)</div><div class="kpi-v" id="zk4" style="font-size:14px;">Md. Shah Alam</div><div class="kpi-s" id="zk4s">৳7.10 Cr</div></div>
-    <div class="kpi rd"><div class="kpi-l">Not in Price List</div><div class="kpi-v bad" id="zk5">৳54.73 L</div><div class="kpi-s" id="zk5s">11 SKUs · unpriced sales</div></div>
   </div>
 
   <!-- Table -->
@@ -2008,7 +2007,6 @@ function render2(){
   document.getElementById('zk1').textContent=fB(tN);document.getElementById('zk2').textContent=fBN(tS);
   document.getElementById('zk3').textContent=fB(tD);document.getElementById('zk4').textContent=top[0];
   document.getElementById('zk4s').textContent=fB(top[1]);
-  document.getElementById('zk5').textContent=gN>0?fB(gN):'৳0';document.getElementById('zk5s').textContent=unp.length+' SKUs · unpriced sales';
   buildZoneTableHeader();
   renderZoneTable();
   render2Mobile();
@@ -2266,7 +2264,6 @@ setTimeout(function(){
     <div class="kpi bl"><div class="kpi-l">Total Current Stock</div><div class="kpi-v" id="t3k2">—</div><div class="kpi-s">Units in warehouse</div></div>
     <div class="kpi pu"><div class="kpi-l">Total Stock DP Value</div><div class="kpi-v" id="t3k3">—</div><div class="kpi-s">Inventory at cost (৳)</div></div>
     <div class="kpi gr"><div class="kpi-l">Top ASM (by NSI)</div><div class="kpi-v" id="t3k4" style="font-size:14px;">—</div><div class="kpi-s" id="t3k4s">—</div></div>
-    <div class="kpi rd"><div class="kpi-l">Not in Price List</div><div class="kpi-v bad" id="t3k5">৳0</div><div class="kpi-s" id="t3k5s">0 SKUs</div></div>
   </div>
   <div class="twrap desktop-t">
     <div class="tscroll">
@@ -2395,8 +2392,9 @@ setTimeout(function(){
   }
   function svgChart(id, series, titleMode){
     const svg=document.getElementById(id);if(!svg)return;
-    const ms=months9(),W=1000,H=330,L=60,R=18,T=20,B=42,cw=W-L-R,ch=H-T-B;
-    if(!series.length){svg.innerHTML='<text x="500" y="165" text-anchor="middle" fill="#8492a6" font-size="14">No sales data for the selected filters</text>';return;}
+    const ms=months9(),wrapEl=svg.closest('.ps-chart-wrap'),W=Math.max(320,Math.round((wrapEl&&wrapEl.clientWidth)||1000)),H=330,L=60,R=18,T=20,B=42,cw=W-L-R,ch=H-T-B;
+    svg.setAttribute('viewBox','0 0 '+W+' '+H);
+    if(!series.length){svg.innerHTML='<text x="'+(W/2)+'" y="'+(H/2)+'" text-anchor="middle" fill="#8492a6" font-size="14">No sales data for the selected filters</text>';return;}
     let max=Math.max(1,...series.flatMap(s=>s.vals));const nice=Math.pow(10,Math.floor(Math.log10(max)));max=Math.ceil(max/nice)*nice;
     const x=i=>L+(ms.length===1?cw/2:i*cw/(ms.length-1)),y=v=>T+ch-(v/max)*ch;let h='';
     for(let i=0;i<=4;i++){const v=max*i/4,yy=y(v);h+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e7edf4"/><text x="${L-7}" y="${yy+4}" text-anchor="end" fill="#7d8aa0" font-size="10">${fmt(v)}</text>`;}
@@ -2405,7 +2403,7 @@ setTimeout(function(){
     let lx=L,ly=8;series.slice(0,10).forEach(s=>{const w=Math.max(90,s.name.length*5.6+28);if(lx+w>W-R){lx=L;ly+=18;}h+=`<line x1="${lx}" y1="${ly}" x2="${lx+13}" y2="${ly}" stroke="${s.color}" stroke-width="3"/><text x="${lx+17}" y="${ly+3}" fill="#334760" font-size="9">${esc(s.name.length>20?s.name.slice(0,18)+'…':s.name)}</text>`;lx+=w;});
     svg.innerHTML=h;svg.querySelectorAll('[data-ps-tip]').forEach(el=>el.addEventListener('mousemove',e=>showTip(e,el.getAttribute('data-ps-tip'))));svg.querySelectorAll('[data-ps-tip]').forEach(el=>el.addEventListener('mouseleave',hideTip));
   }
-  function showTip(e,s){const p=s.split('|');const t=document.getElementById('psTooltip');t.innerHTML='<b>'+p[0]+'</b><br>'+p[1]+' · '+p[2];t.style.display='block';t.style.left=(e.clientX+12)+'px';t.style.top=(e.clientY+12)+'px';}
+  function showTip(e,s){const p=s.split('|');const t=document.getElementById('psTooltip');t.innerHTML='<b>'+p[0]+'</b><br>'+p[1]+' · '+p[2];t.style.display='block';t.style.left='0px';t.style.top='0px';const tw=t.offsetWidth,th=t.offsetHeight,vw=window.innerWidth,vh=window.innerHeight;let lx=e.clientX+12,ty=e.clientY+12;if(lx+tw>vw-6)lx=e.clientX-tw-12;if(lx<6)lx=6;if(ty+th>vh-6)ty=e.clientY-th-12;if(ty<6)ty=6;t.style.left=lx+'px';t.style.top=ty+'px';}
   function hideTip(){const t=document.getElementById('psTooltip');if(t)t.style.display='none';}
 
   function optionValues(base,field){return [...new Set(base.map(r=>r[field]).filter(Boolean))].sort((a,b)=>String(a).localeCompare(String(b)));}
@@ -2442,6 +2440,7 @@ setTimeout(function(){
     if(selectedAsm)renderAsmDetail();
   };
   window.initPrimarySalesTrend=function(){fillFilters();bindFilters();renderPrimarySalesTrend();};
+  (function(){let rt;window.addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{const t4=document.getElementById('tab4');if(t4&&t4.offsetParent!==null)renderPrimarySalesTrend();},150);});})();
   // The main dashboard's tab switcher is initialized before this third-tab markup
   // is inserted, so bind this new tab explicitly.
   const psNav=document.getElementById('navTab4');
