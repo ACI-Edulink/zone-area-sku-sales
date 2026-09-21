@@ -80,7 +80,7 @@ header{background:linear-gradient(180deg,var(--navy) 0%,var(--navy2) 100%);color
 .kpi.bl{border-top-color:var(--info);}
 .kpi.pu{border-top-color:var(--purple);}
 .kpi.gr{border-top-color:var(--good);}
-.kpi.rd{border-top-color:var(--bad);}
+.kpi.rd{border-top-color:var(--bad);}.kpi.tl{border-top-color:#0d9488;}
 .kpi-l{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:2px;}
 .kpi-v{font-size:18px;font-weight:800;color:var(--ink);}
 .kpi-v.good{color:var(--good);}
@@ -150,7 +150,7 @@ td.code{font-family:monospace;font-size:11px;color:var(--muted);white-space:nowr
 td.nm{font-weight:500;font-size:12.5px;line-height:1.35;word-break:break-word;}
 td.nsi-v{font-weight:700;color:var(--good);}
 td.dp-v{color:var(--purple);}
-td.gt-cell{font-weight:800;color:var(--good);background:#f0faf5!important;border-left:2px solid #c5e8d5;}
+td.gt-cell{font-weight:800;color:var(--good);background:#f0faf5!important;border-left:2px solid var(--accent);}
 .s0{color:var(--bad)!important;}
 .dash{color:#ccd2df;}
 .empty-r td{text-align:center;padding:36px;color:var(--muted);font-style:italic;}
@@ -312,20 +312,16 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 }
 
 /* Sticky Grand Total column */
-.col-s8{position:sticky!important;left:743px;min-width:105px;max-width:115px;width:110px;border-right:2px solid var(--accent);background:var(--card);z-index:16;}
-.col-s8::after{content:'';position:absolute;right:-1px;top:0;bottom:0;width:3px;background:linear-gradient(to right,rgba(0,0,0,.1),transparent);pointer-events:none;}
+.col-s8{min-width:105px;max-width:115px;width:110px;border-left:2px solid var(--accent);background:rgba(232,132,44,.08);}
 
 /* Sticky fixed cols in total row */
 .total-row td.col-sticky{z-index:22;}
 .total-row td.col-s8{
-  position:sticky!important;
-  left:743px!important;
-  z-index:32!important;
   background:linear-gradient(90deg,#c96d1c,#e8842c)!important;
   color:#fff!important;
   font-size:13px;
   font-weight:900;
-  border-right:2px solid rgba(255,255,255,.4)!important;
+  border-left:2px solid rgba(255,255,255,.4)!important;
 }
 
 @keyframes loadSlide{0%{background-position:0%}100%{background-position:200%}}
@@ -334,9 +330,9 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 #t3table thead th{background:var(--navy3);}
 #t3table thead tr:nth-child(2) th{background:#172f4f;}
 #t3table thead th.col-sticky{position:sticky!important;background:var(--navy)!important;z-index:26!important;}
-#t3table thead th.col-s8{position:sticky!important;left:743px!important;z-index:37!important;background:#091828!important;border-right:2px solid var(--accent)!important;}
+#t3table thead th.col-s8{background:#091828!important;border-left:2px solid var(--accent)!important;}
 /* ── Tab2 Grand Total header ── */
-#zt thead th.col-s8{position:sticky!important;left:743px!important;z-index:37!important;background:#091828!important;}
+#zt thead th.col-s8{background:#091828!important;border-left:2px solid var(--accent)!important;}
 
 /* ═══════════════════════════════════════════════════════════
    RESPONSIVE MOBILE REPORT
@@ -787,8 +783,8 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
     <div class="kpi or"><div class="kpi-l">Total NSI (All Zones)</div><div class="kpi-v" id="zk1">৳27.45 Cr</div><div class="kpi-s">Sum across all zones (৳)</div></div>
     <div class="kpi bl"><div class="kpi-l">Total Current Stock</div><div class="kpi-v" id="zk2">35.92 L</div><div class="kpi-s">Units in warehouse</div></div>
     <div class="kpi pu"><div class="kpi-l">Total Stock DP Value</div><div class="kpi-v" id="zk3">৳15.25 Cr</div><div class="kpi-s">Inventory at cost (৳)</div></div>
+    <div class="kpi tl"><div class="kpi-l">Total Stock NSI Value</div><div class="kpi-v" id="zk6">৳14.69 Cr</div><div class="kpi-s">Inventory at NSI (৳)</div></div>
     <div class="kpi gr"><div class="kpi-l">Top Zone (by NSI)</div><div class="kpi-v" id="zk4" style="font-size:14px;">Md. Shah Alam</div><div class="kpi-s" id="zk4s">৳7.44 Cr</div></div>
-    <div class="kpi rd"><div class="kpi-l">Not in Price List</div><div class="kpi-v bad" id="zk5">৳58.24 L</div><div class="kpi-s" id="zk5s">11 SKUs · unpriced sales</div></div>
   </div>
 
   <!-- Table -->
@@ -1145,8 +1141,7 @@ function buildT3Header(){
     '<th class="col-sticky col-s4 prod-hdr" rowspan="2" data-t3key="brand">Brand</th>'+
     '<th class="col-sticky col-s5 r prod-hdr" rowspan="2" data-t3key="stock">Stock</th>'+
     '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-t3key="totalDp">DP Value</th>'+
-    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">Liq. Priority</th>'+
-    '<th class="col-sticky col-s8 r prod-hdr" rowspan="2" data-t3key="total" style="cursor:pointer;border-right:2px solid var(--accent);background:rgba(232,132,44,.15);color:#ffd7ad;">Grand Total &#x2195;</th>';
+    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">Liq. Priority</th>';
 
   let aH='',cH='';
   const Z_COLORS=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899'];
@@ -1166,7 +1161,8 @@ function buildT3Header(){
     cH+='<th class="zone-tot-h r" data-t3key="asm:'+asm+'" style="min-width:90px;border-left:1px solid rgba(255,255,255,.15);">'+
       (asm.length>14?asm.slice(0,12)+'…':asm)+'&nbsp;Total</th>';
   });
-  aH+='<th class="grand-h" rowspan="2" style="cursor:default;min-width:0;display:none;"></th>';
+  // Grand Total as last column (far right)
+  aH+='<th class="col-s8 r prod-hdr" rowspan="2" data-t3key="total" style="cursor:pointer;background:rgba(232,132,44,.15);color:#ffd7ad;">Grand Total &#x2195;</th>';
 
   zhRow.innerHTML=leftZ+aH;
   ahRow.innerHTML=cH;
@@ -1279,8 +1275,8 @@ function renderT3Table(){
       '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+
         (PRIORITY_MAP[p.code]?'<span class="prio-badge '+(PRIORITY_MAP[p.code]==="Urgent & Topmost Priority"?'prio-u':'prio-p')+'">'+
         (PRIORITY_MAP[p.code]==="Urgent & Topmost Priority"?'Urgent':'Priority')+'</span>':'')+'</td>'+
-      '<td class="col-sticky col-s8 r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
       asmCells+
+      '<td class="col-s8 r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
     '</tr>';
   }).join('');
 
@@ -1294,7 +1290,6 @@ function renderT3Table(){
   html+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  html+='<td class="col-sticky col-s8 tr-grand r" style="position:sticky!important;left:743px;">'+fB(grandTotal)+'</td>';
   asms.forEach(a=>{
     const isExp=t3ExpandedAsms.has(a);
     if(isExp){
@@ -1305,6 +1300,7 @@ function renderT3Table(){
     }
     html+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fB(asmTotals[a]||0)+'</td>';
   });
+  html+='<td class="col-s8 tr-grand r">'+fB(grandTotal)+'</td>';
   html+='</tr>';
   body.innerHTML=html;
 }
@@ -1381,22 +1377,20 @@ function render3(){
   const tN=rows.reduce((s,r)=>s+r._total,0);
   const tS=rows.reduce((s,r)=>s+r.stock,0);
   const tD=rows.reduce((s,r)=>s+r.totalDp,0);
+  const tNstock=rows.reduce((s,r)=>s+r.totalNsi,0);
 
   // Top ASM
   const asmAgg={};
   asms.forEach(a=>{asmAgg[a]=rows.reduce((s,p)=>s+getAsmNsiForProd(p,a),0);});
   const topAsm=Object.entries(asmAgg).sort((a,b)=>b[1]-a[1])[0]||['—',0];
-  const unp=rows.filter(r=>r.inMaster===false);
-  const gN=unp.reduce((s,r)=>s+r._total,0);
 
   const el=id=>document.getElementById(id);
   if(el('t3k1'))el('t3k1').textContent=fB(tN);
   if(el('t3k2'))el('t3k2').textContent=fBN(tS);
   if(el('t3k3'))el('t3k3').textContent=fB(tD);
+  if(el('t3k6'))el('t3k6').textContent=fB(tNstock);
   if(el('t3k4'))el('t3k4').textContent=topAsm[0];
   if(el('t3k4s'))el('t3k4s').textContent=fB(topAsm[1]);
-  if(el('t3k5'))el('t3k5').textContent=gN>0?fB(gN):'৳0';
-  if(el('t3k5s'))el('t3k5s').textContent=unp.length+' SKUs · unpriced sales';
 
   renderT3Table();
   render3Mobile();
@@ -1667,8 +1661,7 @@ function buildZoneTableHeader(){
     '<th class="col-sticky col-s4 prod-hdr" rowspan="2" data-zkey="brand">Brand</th>'+
     '<th class="col-sticky col-s5 r prod-hdr" rowspan="2" data-zkey="stock">Stock</th>'+
     '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-zkey="totalDp">DP Value</th>'+
-    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">Liq. Priority</th>'+
-    '<th class="col-sticky col-s8 r prod-hdr" rowspan="2" data-zkey="total" style="cursor:pointer;border-right:2px solid var(--accent);">Grand Total &#x2195;</th>';
+    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">Liq. Priority</th>';
   let zH='',aH='';
   az.forEach((z,zi)=>{
     const col=Z_COLORS[DATA.zones.indexOf(z)%Z_COLORS.length]||'#3b82f6';
@@ -1686,7 +1679,8 @@ function buildZoneTableHeader(){
     }
     aH+='<th class="zone-tot-h r" data-zkey="zone:'+z+'" title="'+z+' Total">'+shortN(z)+'&nbsp;Total</th>';
   });
-  // Grand Total moved to sticky leftZ section
+  // Grand Total as last column (far right)
+  zH+='<th class="col-s8 r prod-hdr" rowspan="2" data-zkey="total" style="cursor:pointer;">Grand Total &#x2195;</th>';
   zhRow.innerHTML=leftZ+zH;
   ashRow.innerHTML=aH;
   // Click zone header to expand/collapse
@@ -1714,10 +1708,10 @@ function renderZoneTable(){
   let rows=filteredProds2();
   rows=rows.map(p=>{
     const zv={};DATA.zones.forEach(z=>zv[z]=0);
-    (p.zoneMonthly||[]).forEach(r=>{if(s2.year&&r.y!=s2.year)return;if(s2.month&&r.m!==s2.month)return;if(r.z in zv)zv[r.z]+=r.nsi;});
+    (p.zoneMonthly||[]).forEach(r=>{if(s2.year&&r.y!=s2.year)return;if(s2.month&&r.m!==s2.month)return;if(s2.zone&&r.z!==s2.zone)return;if(r.z in zv)zv[r.z]+=r.nsi;});
     const av={};
     DATA.zones.forEach(z=>{(DATA.zone_asm_map[z]||[]).forEach(a=>{av[z+'|'+a]=0;});});
-    (p.asmMonthly||[]).forEach(r=>{if(s2.year&&r.y!=s2.year)return;if(s2.month&&r.m!==s2.month)return;const k=r.z+'|'+r.a;if(k in av)av[k]+=r.nsi;});
+    (p.asmMonthly||[]).forEach(r=>{if(s2.year&&r.y!=s2.year)return;if(s2.month&&r.m!==s2.month)return;if(s2.zone&&r.z!==s2.zone)return;const k=r.z+'|'+r.a;if(k in av)av[k]+=r.nsi;});
     let total=s2.zone?zv[s2.zone]||0:az.reduce((s,z)=>s+(zv[z]||0),0);
     // If ASM selected, compute ASM-specific total for sorting
     let asmTotal=selectedASM?av[selectedASM.z+'|'+selectedASM.a]||0:total;
@@ -1782,7 +1776,7 @@ function renderZoneTable(){
       '<td class="col-sticky col-s6 r dp-v">'+(np?'<span class="dash">n/a</span>':fC(p.totalDp))+'</td>'+
       '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+(PRIORITY_MAP[p.code]?'<span class="prio-badge '+(PRIORITY_MAP[p.code]==="Urgent & Topmost Priority"?'prio-u':'prio-p')+'">'+(PRIORITY_MAP[p.code]==="Urgent & Topmost Priority"?'Urgent':'Priority')+'</span>':'')+'</td>'+
       zoneCells+
-      '<td class="col-sticky col-s8 r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
+      '<td class="col-s8 r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
     '</tr>';
   }).join('') + buildTotalsRow(az,zTotals,aTotals,grandTotal);
 }
@@ -1797,8 +1791,7 @@ function buildTotalsRow(az,zTotals,aTotals,grandTotal){
   row+='<td class="col-sticky col-s4 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  row+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  row+='<td class="col-sticky col-s8 tr-grand r" style="position:sticky;left:743px;">'+fB(grandTotal)+'</td>';
+  row+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;border-right:2px solid #c5d9e8;"></td>';
   az.forEach(z=>{
     const asms=(DATA.zone_asm_map&&DATA.zone_asm_map[z])||[];
     const isExp=expandedZones.has(z);
@@ -1811,6 +1804,8 @@ function buildTotalsRow(az,zTotals,aTotals,grandTotal){
     const zt=zTotals[z]||0;
     row+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fB(zt)+'</td>';
   });
+  // Grand Total at far right
+  row+='<td class="col-s8 tr-grand r">'+fB(grandTotal)+'</td>';
   row+='</tr>';
   return row;
 }
@@ -2001,14 +1996,12 @@ function render2(){
   const tN=rows.reduce((s,r)=>s+r._total,0);
   const tS=rows.reduce((s,r)=>s+r.stock,0);
   const tD=rows.reduce((s,r)=>s+r.totalDp,0);
+  const tNstock=rows.reduce((s,r)=>s+r.totalNsi,0);
   const zAgg={};DATA.zones.forEach(z=>{zAgg[z]=rows.reduce((s,r)=>{const v=(r.zoneMonthly||[]).filter(m=>m.z===z&&(!s2.year||m.y==s2.year)&&(!s2.month||m.m===s2.month)).reduce((a,b)=>a+b.nsi,0);return s+v;},0);});
   const top=Object.entries(zAgg).sort((a,b)=>b[1]-a[1])[0]||['—',0];
-  const unp=rows.filter(r=>r.inMaster===false);
-  const gN=unp.reduce((s,r)=>s+r._total,0);
   document.getElementById('zk1').textContent=fB(tN);document.getElementById('zk2').textContent=fBN(tS);
-  document.getElementById('zk3').textContent=fB(tD);document.getElementById('zk4').textContent=top[0];
+  document.getElementById('zk3').textContent=fB(tD);document.getElementById('zk6').textContent=fB(tNstock);document.getElementById('zk4').textContent=top[0];
   document.getElementById('zk4s').textContent=fB(top[1]);
-  document.getElementById('zk5').textContent=gN>0?fB(gN):'৳0';document.getElementById('zk5s').textContent=unp.length+' SKUs · unpriced sales';
   buildZoneTableHeader();
   renderZoneTable();
   render2Mobile();
@@ -2265,8 +2258,8 @@ setTimeout(function(){
     <div class="kpi or"><div class="kpi-l">Total NSI (All ASMs)</div><div class="kpi-v" id="t3k1">—</div><div class="kpi-s">Sum across all ASMs (৳)</div></div>
     <div class="kpi bl"><div class="kpi-l">Total Current Stock</div><div class="kpi-v" id="t3k2">—</div><div class="kpi-s">Units in warehouse</div></div>
     <div class="kpi pu"><div class="kpi-l">Total Stock DP Value</div><div class="kpi-v" id="t3k3">—</div><div class="kpi-s">Inventory at cost (৳)</div></div>
+    <div class="kpi tl"><div class="kpi-l">Total Stock NSI Value</div><div class="kpi-v" id="t3k6">—</div><div class="kpi-s">Inventory at NSI (৳)</div></div>
     <div class="kpi gr"><div class="kpi-l">Top ASM (by NSI)</div><div class="kpi-v" id="t3k4" style="font-size:14px;">—</div><div class="kpi-s" id="t3k4s">—</div></div>
-    <div class="kpi rd"><div class="kpi-l">Not in Price List</div><div class="kpi-v bad" id="t3k5">৳0</div><div class="kpi-s" id="t3k5s">0 SKUs</div></div>
   </div>
   <div class="twrap desktop-t">
     <div class="tscroll">
