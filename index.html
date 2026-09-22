@@ -748,7 +748,7 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 .summ-mfilter{display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:5px 10px;background:var(--card);border-radius:var(--r);box-shadow:0 1px 4px rgba(0,0,0,.06);}
 .summ-mfilter label{font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;}
 .summ-mfilter select{border:1px solid var(--line);border-radius:7px;padding:6px 28px 6px 10px;font-size:13px;background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23697489' stroke-width='2' width='12' height='12'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center/12px;appearance:none;cursor:pointer;color:var(--ink);}
-.summ-kpi-row{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:6px;}
+.summ-kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:6px;}
 @media(max-width:900px){.summ-kpi-row{grid-template-columns:repeat(2,1fr);}}
 .s-kpi{background:var(--card);border-radius:var(--r);padding:6px 10px;box-shadow:0 1px 4px rgba(0,0,0,.06);border-left:3px solid transparent;position:relative;overflow:hidden;}
 .s-kpi::before{content:'';position:absolute;right:-14px;top:-14px;width:52px;height:52px;border-radius:50%;opacity:.05;}
@@ -884,10 +884,9 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 
     <!-- KPI Cards Row -->
     <div class="summ-kpi-row" id="s1KpiRow">
-      <div class="s-kpi or"><div class="s-kpi-l">Current Month NSI</div><div class="s-kpi-v" id="s1k1">—</div><div class="s-kpi-s">All Zones combined</div><div id="s1k1b"></div></div>
+      <div class="s-kpi or"><div class="s-kpi-l">Current Month NSI</div><div class="s-kpi-v" id="s1k1" style="font-size:22px;color:#1e3a8a;">—</div><div class="s-kpi-s">All Zones combined</div><div id="s1k1b"></div></div>
       <div class="s-kpi bl"><div class="s-kpi-l">Total Current Stock</div><div class="s-kpi-v" id="s1k2">—</div><div class="s-kpi-s">Units in warehouse</div></div>
       <div class="s-kpi pu"><div class="s-kpi-l">Stock DP Value</div><div class="s-kpi-v" id="s1k3">—</div><div class="s-kpi-s">Inventory at cost</div></div>
-      <div class="s-kpi tl"><div class="s-kpi-l">Stock NSI Value</div><div class="s-kpi-v" id="s1k4">—</div><div class="s-kpi-s">Inventory at NSI</div></div>
       <div class="s-kpi gr"><div class="s-kpi-l">Top Zone</div><div class="s-kpi-v" id="s1k5" style="font-size:15px;">—</div><div class="s-kpi-s" id="s1k5s">by NSI this month</div></div>
     </div>
 
@@ -2896,8 +2895,6 @@ setTimeout(function(){
     const totalNsi=Object.values(znsi).reduce((a,b)=>a+b,0);
     const totalStock=DATA.products.reduce((s,p)=>s+(+p.stock||0),0);
     const totalDp=DATA.products.reduce((s,p)=>s+(+p.totalDp||0),0);
-    const totalNsiVal=DATA.products.reduce((s,p)=>s+(+p.totalNsi||0),0);
-
     setText('s1k1',fB(totalNsi));
     /* month-over-month comparison */
     const prevMi=MO.indexOf(m)-1;
@@ -2914,8 +2911,6 @@ setTimeout(function(){
 
     setText('s1k2',fQ(totalStock)+' units');
     setText('s1k3',fB(totalDp));
-    setText('s1k4',fB(totalNsiVal));
-
     /* top zone */
     const topZone=Object.entries(znsi).sort((a,b)=>b[1]-a[1])[0];
     if(topZone){
