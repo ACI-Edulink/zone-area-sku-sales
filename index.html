@@ -2526,7 +2526,8 @@ function render3(){
   if(el('t3k4s'))el('t3k4s').textContent=fB(topAsm[1]);
 
   renderT3Table();
-  // Product photo/gallery mobile section removed per request — not rendered.
+  // Restore the responsive product-card view for mobile screens.
+  render3Mobile();
 }
 
 function processFile(file){
@@ -3140,7 +3141,8 @@ function render2(){
   document.getElementById('zk4s').textContent=fB(top[1]);
   buildZoneTableHeader();
   renderZoneTable();
-  // Product photo/gallery mobile section removed per request — not rendered.
+  // Keep the responsive product-card view in sync with the desktop table.
+  render2Mobile();
   // Tab 3 shares s2 filters — refresh it too if it's active
   var tab3El=document.getElementById('tab3');
   if(tab3El&&tab3El.classList.contains('active')){try{render3();}catch(e){}}
