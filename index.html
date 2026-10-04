@@ -1957,7 +1957,6 @@ function buildDailyExtras(raw){
 function buildPrimarySalesTrendFromWb(wb){
   const sh=wb.Sheets['Primary Sales']; if(!sh)return {months:[],rows:[]};
   const raw=s2j(sh,['ProductCode','months','years','TotalQuantity','NSI']);
-  try{buildDailyExtras(raw);}catch(e){console.error('daily extras',e);}
   const mo=MONTH_ORDER;
   const seen=new Set(), all=[];
   raw.forEach(r=>{
@@ -2161,10 +2160,8 @@ function resetDefault(){
 function rebuildAll(){
   buildIndexes();populateFilters();populateT3Filters();
   render2();
-  if(typeof populateSummMonths==='function'){try{populateSummMonths();}catch(e){console.error('populateSummMonths',e);}}
-  if(typeof renderSummary==='function'){try{renderSummary();}catch(e){console.error('renderSummary',e);}}
   if(document.getElementById('tab3')&&document.getElementById('tab3').classList.contains('active'))render3();
-  if(typeof renderPrimarySalesTrend==='function'){try{renderPrimarySalesTrend();}catch(e){console.error('renderPrimarySalesTrend',e);}}
+  if(document.getElementById('tab4')&&document.getElementById('tab4').classList.contains('active')&&typeof renderPrimarySalesTrend==='function')renderPrimarySalesTrend();
 }
 
 function populateFilters(){
@@ -3915,7 +3912,6 @@ setTimeout(function(){
 
   /* expose for manual call */
   window.renderSummary=renderSummary;
-  window.populateSummMonths=populateSummMonths;
 
   setTimeout(()=>{try{initSummary();}catch(e){console.error('Summary tab:',e);}},50);
 })();
