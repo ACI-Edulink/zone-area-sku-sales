@@ -1800,6 +1800,7 @@ function fN(n){return(+n||0).toLocaleString('en-IN',{maximumFractionDigits:0});}
 function fC(n){n=+n||0;return n===0?'৳0':'৳'+n.toLocaleString('en-IN',{maximumFractionDigits:0});}
 function fB(n){n=+n||0;if(Math.abs(n)>=1e7)return '৳'+(n/1e7).toFixed(2)+' Cr';if(Math.abs(n)>=1e5)return '৳'+(n/1e5).toFixed(2)+' L';return '৳'+Math.round(n).toLocaleString('en-IN');}
 function fBN(n){n=+n||0;if(Math.abs(n)>=1e7)return (n/1e7).toFixed(2)+' Cr';if(Math.abs(n)>=1e5)return (n/1e5).toFixed(2)+' L';return Math.round(n).toLocaleString('en-IN');}
+function fS(n){n=Number(n)||0;const ab=Math.abs(n);return (n<0?'-':'')+(ab>=1e7?(ab/1e7).toFixed(2)+' Cr':ab>=1e5?(ab/1e5).toFixed(2)+' L':ab>=1e3?(ab/1e3).toFixed(2)+' K':ab.toLocaleString('en-IN',{maximumFractionDigits:0}));} /* short number format, same as the IMS columns */
 function fBSummary(n){n=+n||0;if(Math.abs(n)>=1e7)return '৳'+(n/1e7).toFixed(1)+' Cr';if(Math.abs(n)>=1e5)return '৳'+(n/1e5).toFixed(1)+' L';return Math.round(n).toLocaleString('en-IN');}
 
 /* ── Photo ── */
@@ -2411,12 +2412,12 @@ function renderT3Table(){
         getAsmCusts(a).forEach(cust=>{
           const v=p._cv[a+'|'+cust]||0;
           const has10=hasSalesInLast10(p,'cust',{asm:a,cust},s2.zone||null);
-          asmCells+='<td class="r'+(!s2.zeroSales&&v>0?' asm-cell':'')+'">'+zeroSalesCell(has10,(v>0?fC(v):'<span class="dash">–</span>'))+'</td>';
+          asmCells+='<td class="r'+(!s2.zeroSales&&v>0?' asm-cell':'')+'">'+zeroSalesCell(has10,(v>0?fS(v):'<span class="dash">–</span>'))+'</td>';
         });
       }
       const av=p._av[a]||0;
       const has10=hasSalesInLast10(p,'asm',a,s2.zone||null);
-      asmCells+='<td class="zone-tot-cell r">'+zeroSalesCell(has10,(av>0?fC(av):'<span class="dash">–</span>'))+'</td>';
+      asmCells+='<td class="zone-tot-cell r">'+zeroSalesCell(has10,(av>0?fS(av):'<span class="dash">–</span>'))+'</td>';
     });
     return '<tr>'+
       phCell(p.img,p.name)+
@@ -2429,7 +2430,7 @@ function renderT3Table(){
       '<td class="col-sticky col-s5 r '+sc+'">'+(np?'<span class="dash">n/a</span>':'<b>'+fN(p.stock)+'</b>')+'</td>'+
       '<td class="col-sticky col-s6 r dp-v">'+(np?'<span class="dash">n/a</span>':fC(p.totalDp))+'</td>'+
       '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+productGrowthMarkup(p)+'</td>'+
-      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
+      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'</td>'+
       asmCells+
     '</tr>';
   }).join('');
@@ -2444,16 +2445,16 @@ function renderT3Table(){
   html+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  html+='<td class="col-sticky col-grand tr-grand r">'+fB(grandTotal)+'</td>';
+  html+='<td class="col-sticky col-grand tr-grand r">'+fS(grandTotal)+'</td>';
   asms.forEach(a=>{
     const isExp=t3ExpandedAsms.has(a);
     if(isExp){
       getAsmCusts(a).forEach(cust=>{
         const v=custTotals[a+'|'+cust]||0;
-        html+='<td class="tr-zone r">'+(v>0?fB(v):'<span class="dash" style="color:#557">–</span>')+'</td>';
+        html+='<td class="tr-zone r">'+(v>0?fS(v):'<span class="dash" style="color:#557">–</span>')+'</td>';
       });
     }
-    html+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fB(asmTotals[a]||0)+'</td>';
+    html+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fS(asmTotals[a]||0)+'</td>';
   });
 
   html+='</tr>';
@@ -2485,6 +2486,8 @@ function render3Mobile(){
   const period=(s2.month.length||s2.year)?' · '+[s2.month.length?(s2.month.length===1?s2.month[0]:s2.month.length+' months'):'',s2.year].filter(Boolean).join(' '):'';
   let html='<div class="mob-cnt">'+rows.length+' products'+period+(s2.zone?' · '+escM(s2.zone):'')+(s2.asm?' · '+escM(s2.asm):'')+'</div>';
   if(!rows.length){c.innerHTML=html+'<div class="mob-card"><div class="mob-section-title">No products match the current filters.</div></div>';return;}
+  const IM=window.__edulinkIMSMobile?window.__edulinkIMSMobile(3):null;
+  const imsTag=s=>(IM&&!s2.zeroSales)?'<span class="ims-m">IMS '+s+'</span>':'';
   html+=rows.map(p=>{
     const openKeys=(p._asmRows||[]).filter(r=>mobileExpandedAsmCustomers.has(p.code+'|'+r.a)).length;
     const cards=(p._asmRows||[]).map(r=>{
@@ -2492,8 +2495,8 @@ function render3Mobile(){
       const open=mobileExpandedAsmCustomers.has(key);
       return '<div class="mob-asm-row'+(open?' open':'')+'" data-p="'+escM(p.code)+'" data-asm="'+escM(r.a)+'">'+
         '<div class="left"><span class="mob-chevron">▼</span><span class="lbl">'+escM(r.a)+'</span></div>'+
-        '<span class="val">'+(s2.zeroSales?(r.has10?'—':'0'):fB(r.nsi))+'</span></div>'+
-        (open?buildMobileCustomerPanel(p,r.a):'');
+        '<span class="val">'+(s2.zeroSales?(r.has10?'—':'0'):fB(r.nsi))+(IM?imsTag(IM.asm(p.code,'',r.a)):'')+'</span></div>'+
+        (open?buildMobileCustomerPanel(p,r.a,IM):'');
     }).join('');
     return '<div class="mob-card t3-mobile-card">'+
       '<div class="mc-hd">'+mobilePhoto(p)+
@@ -2974,13 +2977,13 @@ function renderZoneTable(){
           const v=p._av[z+'|'+a]||0;
           const isSel=selectedASM&&selectedASM.z===z&&selectedASM.a===a;
           const has10=hasSalesInLast10(p,'asm',a,z);
-          const shown=zeroSalesCell(has10,(v>0?fC(v):'<span class="dash">–</span>'));
+          const shown=zeroSalesCell(has10,(v>0?fS(v):'<span class="dash">–</span>'));
           zoneCells+='<td class="r'+(isSel?' asm-hl':'')+(!s2.zeroSales&&v>0?' asm-cell':'')+'">'+shown+'</td>';
         });
       }
       const zv=p._zv[z]||0;
       const zoneHas10=hasSalesInLast10(p,'zone',null,z);
-      zoneCells+='<td class="zone-tot-cell r">'+zeroSalesCell(zoneHas10,(zv>0?fC(zv):'<span class="dash">–</span>'))+'</td>';
+      zoneCells+='<td class="zone-tot-cell r">'+zeroSalesCell(zoneHas10,(zv>0?fS(zv):'<span class="dash">–</span>'))+'</td>';
     });
     return '<tr>'+
       phCell(p.img,p.name)+
@@ -2991,7 +2994,7 @@ function renderZoneTable(){
       '<td class="col-sticky col-s5 r '+sc+'">'+(np?'<span class="dash">n/a</span>':'<b>'+fN(p.stock)+'</b>')+'</td>'+
       '<td class="col-sticky col-s6 r dp-v">'+(np?'<span class="dash">n/a</span>':fC(p.totalDp))+'</td>'+
       '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+productGrowthMarkup(p)+'</td>'+
-      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fC(p._total):'<span class="dash">–</span>')+'</td>'+
+      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'</td>'+
       zoneCells+
     '</tr>';
   }).join('') + buildTotalsRow(az,zTotals,aTotals,grandTotal);
@@ -3014,18 +3017,18 @@ function buildTotalsRow(az,zTotals,aTotals,grandTotal){
   row+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;border-right:2px solid #c5d9e8;"></td>';
-  row+='<td class="col-sticky col-grand tr-grand r">'+fB(grandTotal)+'</td>';
+  row+='<td class="col-sticky col-grand tr-grand r">'+fS(grandTotal)+'</td>';
   az.forEach(z=>{
     const asms=(DATA.zone_asm_map&&DATA.zone_asm_map[z])||[];
     const isExp=expandedZones.has(z);
     if(isExp){
       asms.forEach(a=>{
         const v=aTotals[z+'|'+a]||0;
-        row+='<td class="tr-zone r">'+(v>0?fB(v):'<span class="dash" style="color:#557">–</span>')+'</td>';
+        row+='<td class="tr-zone r">'+(v>0?fS(v):'<span class="dash" style="color:#557">–</span>')+'</td>';
       });
     }
     const zt=zTotals[z]||0;
-    row+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fB(zt)+'</td>';
+    row+='<td class="tr-zone r" style="border-right:2px solid rgba(255,255,255,.15);font-size:13px;">'+fS(zt)+'</td>';
   });
   // Grand Total at far right
 
@@ -3144,6 +3147,8 @@ function render2Mobile(){
     return;
   }
 
+  const IM=window.__edulinkIMSMobile?window.__edulinkIMSMobile(2):null;
+  const imsTag=s=>(IM&&!s2.zeroSales)?'<span class="ims-m">IMS '+s+'</span>':'';
   html+=rows.map(p=>{
     const np=p.inMaster===false;
     const zsmRows=p._zsmRows||[];
@@ -3166,12 +3171,12 @@ function render2Mobile(){
         const open=mobileExpandedZsms.has(key);
         card+='<div class="mob-zone-row mob-zsm-row'+(open?' open':'')+'" data-p="'+escM(p.code)+'" data-zone="'+escM(zr.z)+'">';
         card+='<div class="left"><span class="mob-zsm-chevron">▼</span><span class="lbl">'+escM(zr.z)+'</span></div>';
-        card+='<span class="val">'+(s2.zeroSales?(zr.has10?'': '0'):fB(zr.nsi))+'</span></div>';
+        card+='<span class="val">'+(s2.zeroSales?(zr.has10?'': '0'):fB(zr.nsi))+(IM?imsTag(IM.zone(p.code,zr.z)):'')+'</span></div>';
         if(open){
           card+='<div class="mob-asm-list">';
           if(zr.asms.length){
             zr.asms.forEach(a=>{
-              card+='<div class="mob-asm-item"><span class="lbl">'+escM(a.a)+'</span><span class="val">'+(s2.zeroSales?'0':fB(a.nsi))+'</span></div>';
+              card+='<div class="mob-asm-item"><span class="lbl">'+escM(a.a)+'</span><span class="val">'+(s2.zeroSales?'0':fB(a.nsi))+(IM?imsTag(IM.asm(p.code,zr.z,a.a)):'')+'</span></div>';
             });
           }else{
             card+='<div class="mob-more">No ASM sales for this ZSM in the selected period.</div>';
@@ -3197,11 +3202,11 @@ function render2Mobile(){
 }
 
 const mobileExpandedAsmCustomers=new Set();
-function buildMobileCustomerPanel(p,asm){
+function buildMobileCustomerPanel(p,asm,IM){
   const custs=getAsmCusts(asm).map(c=>({c,nsi:getCustNsiForProd(p,asm,c),has10:hasSalesInLast10(p,'cust',{asm,cust:c},s2.zone||null)})).filter(x=>s2.zeroSales?!x.has10:x.nsi>0).sort((a,b)=>s2.zeroSales?a.c.localeCompare(b.c):b.nsi-a.nsi);
   if(!custs.length)return '<div class="mob-cust-panel"><div class="mob-more">'+(s2.zeroSales?'No zero-sales distributors found for this product / ASM in the last 10 months.':'No customer-level sales for this product / ASM in the selected period.')+'</div></div>';
   return '<div class="mob-cust-panel"><div class="mob-cust-head"><span>Customers</span><span>'+custs.length+'</span></div>'+
-    custs.map(x=>'<div class="mob-cust-row"><span class="mob-cust-name">'+escM(x.c)+'</span><span class="mob-cust-val">'+(s2.zeroSales?'0':fC(x.nsi))+'</span></div>').join('')+
+    custs.map(x=>'<div class="mob-cust-row"><span class="mob-cust-name">'+escM(x.c)+'</span><span class="mob-cust-val">'+(s2.zeroSales?'0':fC(x.nsi))+((IM&&!s2.zeroSales)?'<span class="ims-m">IMS '+IM.db(p.code,asm,x.c)+'</span>':'')+'</span></div>').join('')+
     '</div>';
 }
 
@@ -4560,7 +4565,7 @@ function render(){
  rows.sort((a,b)=>a5Sort==='total'?(a.total-b.total)*a5SortDir||String(a.p.name).localeCompare(String(b.p.name)):String(a.p.name).localeCompare(String(b.p.name))*a5SortDir||String(a.g.asm).localeCompare(String(b.g.asm)));
  el('a5total').textContent=fB(sum);el('a5products').textContent=products.size;el('a5asms').textContent=unique.size;
  el('a5head').innerHTML='<tr><th class="col-sticky col-s0">Photo</th><th class="col-sticky col-s1">ACI Code</th><th class="col-sticky col-s2z">Product Name</th><th class="col-sticky col-s3">Category</th><th class="col-sticky col-s4">Brand</th><th class="col-sticky col-s5 a5-asmhead">ASM Name</th>'+ '<th class="col-sticky col-grand r a5-sort-total" title="Click to sort by Grand Total" tabindex="0" role="button">Grand Total '+(a5Sort==='total'?(a5SortDir===-1?'▼':'▲'):'↕')+'</th>'+months.map(m=>'<th class="r">'+m+'</th>').join('')+'</tr>';
- el('a5body').innerHTML=rows.length?rows.map(({p,g,total})=>'<tr><td class="col-sticky col-s0">'+(p.img?'<div class="pt-wrap"><img class="pt" loading="lazy" src="'+esc(p.img).replace(/^http:/,'https:')+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pt-fb" style="display:none">▧</div></div>':'<div class="pt-fb">▧</div>')+'</td><td class="col-sticky col-s1 code">'+esc(p.code)+'</td><td class="col-sticky col-s2z nm" title="'+esc(p.name)+'">'+esc(p.name)+(TRADE_OFFER_CODES.has(String(p.code))?'<br><span class="to-badge">FOCUS &amp; TRADE OFFER</span>':'')+'</td><td class="col-sticky col-s3"><span class="tag">'+esc(p.category)+'</span></td><td class="col-sticky col-s4"><span class="bd '+(p.brand==='iSelect'?'bd-i':'bd-d')+'">'+esc(p.brand)+'</span></td><td class="col-sticky col-s5 a5asm">'+esc(g.asm)+'</td><td class="col-sticky col-grand r gt-cell a5total">'+fmt(total)+'</td>'+months.map(m=>'<td class="r asm-cell">'+(g.values[m]?fmt(g.values[m]):'<span class="dash">–</span>')+'</td>').join('')+'</tr>').join(''):'<tr class="empty-r"><td colspan="'+(7+months.length)+'">No sales match the selected filters.</td></tr>';
+ el('a5body').innerHTML=rows.length?rows.map(({p,g,total})=>'<tr><td class="col-sticky col-s0">'+(p.img?'<div class="pt-wrap"><img class="pt" loading="lazy" src="'+esc(p.img).replace(/^http:/,'https:')+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="pt-fb" style="display:none">▧</div></div>':'<div class="pt-fb">▧</div>')+'</td><td class="col-sticky col-s1 code">'+esc(p.code)+'</td><td class="col-sticky col-s2z nm" title="'+esc(p.name)+'">'+esc(p.name)+(TRADE_OFFER_CODES.has(String(p.code))?'<br><span class="to-badge">FOCUS &amp; TRADE OFFER</span>':'')+'</td><td class="col-sticky col-s3"><span class="tag">'+esc(p.category)+'</span></td><td class="col-sticky col-s4"><span class="bd '+(p.brand==='iSelect'?'bd-i':'bd-d')+'">'+esc(p.brand)+'</span></td><td class="col-sticky col-s5 a5asm">'+esc(g.asm)+'</td><td class="col-sticky col-grand r gt-cell a5total">'+fS(total)+'</td>'+months.map(m=>'<td class="r asm-cell">'+(g.values[m]?fS(g.values[m]):'<span class="dash">–</span>')+'</td>').join('')+'</tr>').join(''):'<tr class="empty-r"><td colspan="'+(7+months.length)+'">No sales match the selected filters.</td></tr>';
  // Fixed bottom totals, calculated from the currently filtered product/ASM rows.
  if(rows.length){
   const monthlyTotals=Object.fromEntries(months.map(m=>[m,0]));
@@ -4570,8 +4575,8 @@ function render(){
   footer+=empty('col-s0')+empty('col-s1');
   footer+='<td class="col-sticky col-s2z tr-label">▼ ASM Totals</td>';
   footer+=empty('col-s3')+empty('col-s4')+empty('col-s5');
-  footer+='<td class="col-sticky col-grand tr-grand r">'+fB(sum)+'</td>';
-  footer+=months.map(m=>'<td class="tr-zone r">'+fB(monthlyTotals[m])+'</td>').join('');
+  footer+='<td class="col-sticky col-grand tr-grand r">'+fS(sum)+'</td>';
+  footer+=months.map(m=>'<td class="tr-zone r">'+fS(monthlyTotals[m])+'</td>').join('');
   footer+='</tr>';
   el('a5body').insertAdjacentHTML('beforeend',footer);
  }
@@ -4612,7 +4617,7 @@ const $=id=>document.getElementById(id), fmt=n=>!Number.isFinite(n)?'—':'৳'+
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const months=['January','February','March','April','May','June','July','August','September','October','November','December'];
 let ims=[],loaded=false,activeView='all';
-const css=`<style>.ims-card{border-top:3px solid #0d9488!important}.ims-card .kpi-v,.ims-card .s-kpi-v{color:#0d9488}.ims-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:#fff;padding:12px;border-radius:10px;margin-bottom:12px}.ims-toolbar select,.ims-toolbar input,.ims-toolbar button{border:1px solid #d9e1ec;border-radius:7px;padding:8px;font-size:12px;background:#f7f9fc}.ims-toolbar button{background:#0b1f3a;color:white;cursor:pointer}.ims-wrap{padding:12px 18px}.ims-panel{background:white;border-radius:11px;padding:14px;margin-bottom:12px;box-shadow:0 1px 5px #0b1f3a12}.ims-tablewrap{overflow:auto;max-height:65vh}.ims-table{width:100%;border-collapse:separate;border-spacing:0}.ims-table th{background:#0b1f3a;position:sticky;top:0;color:white}.ims-table td{border-bottom:1px solid #e8edf3}.ims-table td,.ims-table th{padding:9px 11px;white-space:nowrap}.ims-table .number{text-align:right;font-weight:700;color:#13835e}.ims-col{background:#eefaf6!important;color:#117759!important;font-weight:750;white-space:nowrap}.ims-head{background:#0d6e62!important;color:white!important}.ims-status{font-size:12px;color:#617089}.ims-filebox{padding:10px;background:#e9f6f3;border:1px solid #c6e5db;border-radius:8px}.ims-mini{font-size:11px;color:#63758b}.ims-empty{padding:30px;text-align:center;color:#64748b}@media(max-width:768px){.ims-wrap{padding:8px}.ims-toolbar>*{max-width:100%}}</style>`;
+const css=`<style>.ims-card{border-top:3px solid #0d9488!important}.ims-card .kpi-v,.ims-card .s-kpi-v{color:#0d9488}.ims-toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:9px;background:#fff;padding:12px;border-radius:10px;margin-bottom:12px}.ims-toolbar select,.ims-toolbar input,.ims-toolbar button{border:1px solid #d9e1ec;border-radius:7px;padding:8px;font-size:12px;background:#f7f9fc}.ims-toolbar button{background:#0b1f3a;color:white;cursor:pointer}.ims-wrap{padding:12px 18px}.ims-panel{background:white;border-radius:11px;padding:14px;margin-bottom:12px;box-shadow:0 1px 5px #0b1f3a12}.ims-tablewrap{overflow:auto;max-height:65vh}.ims-table{width:100%;border-collapse:separate;border-spacing:0}.ims-table th{background:#0b1f3a;position:sticky;top:0;color:white}.ims-table td{border-bottom:1px solid #e8edf3}.ims-table td,.ims-table th{padding:9px 11px;white-space:nowrap}.ims-table .number{text-align:right;font-weight:700;color:#13835e}.ims-col{background:#eefaf6!important;color:#117759!important;font-weight:750;white-space:nowrap}.ims-head{background:#0d6e62!important;color:white!important}.ims-status{font-size:12px;color:#617089}.ims-filebox{padding:10px;background:#e9f6f3;border:1px solid #c6e5db;border-radius:8px}.ims-mini{font-size:11px;color:#63758b}.ims-empty{padding:30px;text-align:center;color:#64748b}.ims-m{display:block;font-size:10.5px;font-weight:700;color:#0d9488;text-align:right;line-height:1.25;margin-top:1px;white-space:nowrap}@media(max-width:768px){.ims-wrap{padding:8px}.ims-toolbar>*{max-width:100%}}</style>`;
 /* FIX: a downloaded HTML already contains the IMS tab, page, cards and panel that this script creates.
    Remove those baked copies first so every open (and every re-download) keeps exactly one of each. */
 document.querySelectorAll('.tabnav [data-tab="tab6"],#tab6,.ims-card').forEach(e=>e.remove());
@@ -4774,7 +4779,30 @@ function updateColumns(){
       injected.forEach((td,i)=>td.textContent=loaded?compact(totalBySpec[i]):'—');
     }
   }
+  refreshIMSMobile();
 }
+/* Mobile cards: IMS values for each zone / ASM / customer row.
+   Uses the same period, filters and matching rules as the IMS columns in the desktop tables. */
+window.__edulinkIMSMobile=function(tab){
+  if(!loaded)return null;
+  const nrm=v=>String(v??'').trim().toLowerCase().replace(/[^a-z0-9]/g,'');
+  const compact=v=>{const n=Number(v)||0,ab=Math.abs(n);return (n<0?'-':'')+(ab>=1e7?(ab/1e7).toFixed(2)+' Cr':ab>=1e5?(ab/1e5).toFixed(2)+' L':ab>=1e3?(ab/1e3).toFixed(2)+' K':ab.toLocaleString('en-IN',{maximumFractionDigits:0}));};
+  const sums=new Map();
+  const add=(code,key,value)=>{let m=sums.get(code);if(!m){m=new Map();sums.set(code,m)}m.set(key,(m.get(key)||0)+value)};
+  for(const r of scoped(tab)){
+    const code=nrm(r.code);if(!code)continue;
+    const z=nrm(r.z),a=nrm(r.a),db=nrm(r.db),v=r.value||0;
+    add(code,'zone:'+z,v);add(code,'asm2:'+z+'|'+a,v);add(code,'asm3:'+a,v);add(code,'db:'+a+'|'+db,v);
+  }
+  const get=(code,key)=>{const m=sums.get(nrm(code));return m?(m.get(key)||0):0};
+  return {
+    zone:(code,z)=>compact(get(code,'zone:'+nrm(z))),
+    asm:(code,z,a)=>compact(get(code,tab===2?'asm2:'+nrm(z)+'|'+nrm(a):'asm3:'+nrm(a))),
+    db:(code,a,d)=>compact(get(code,'db:'+nrm(a)+'|'+nrm(d)))
+  };
+};
+/* Re-draw the mobile cards whenever IMS data is loaded/restored or the IMS columns refresh. */
+function refreshIMSMobile(){try{if(typeof render2Mobile==='function')render2Mobile();if(typeof render3Mobile==='function')render3Mobile();}catch(e){}}
 let scheduled=false;const observer=new MutationObserver(muts=>{if(muts.every(m=>[...m.addedNodes,...m.removedNodes].every(n=>n.nodeType!==1||n.classList?.contains('ims-injected'))))return;if(scheduled)return;scheduled=true;setTimeout(()=>{scheduled=false;updateColumns()},120)});for(const id of ['zt','t3table'])if($(id))observer.observe($(id),{childList:true,subtree:true});
 for(const id of ['zyF','zzF','zaF','zpriF','zcF','psYear','psZone','psAsm','psCat','s1MonthF','s1CategoryF','s1ProductF'])$(id)?.addEventListener('change',()=>setTimeout(()=>{updateCards();updateColumns()},180));$('zmFPop')?.addEventListener('change',()=>setTimeout(()=>{updateCards();updateColumns()},180));
 const saved=localStorage.getItem('ims-upload-summary');if(saved){try{const s=JSON.parse(saved);updateStatus(`Previous upload: ${s.name} (${s.count.toLocaleString()} records). Re-upload the Excel to load its data into this session.`)}catch(e){}}
