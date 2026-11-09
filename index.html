@@ -917,12 +917,23 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 #catPop .bfil label{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;letter-spacing:.5px;text-transform:uppercase;color:var(--mut);}
 #catPop .bfil select{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ln);border-radius:9px;padding:6px 8px;background:#fafcff;max-width:190px;}
 #catPop .bfc{border:0;background:#fde8e6;color:#c9372c;border-radius:9px;padding:6px 11px;font-size:11px;font-weight:700;cursor:pointer;}
+#catPop .bmw{position:relative;display:inline-block;}#catPop .yrp{width:170px;}
+#catPop .bmb,#catPop .yrb{font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink);border:1px solid var(--ln);border-radius:9px;padding:6px 10px;background:#fafcff;cursor:pointer;min-width:104px;text-align:left;}
+#catPop .bmp,#catPop .yrp{display:none;position:absolute;top:34px;left:0;z-index:30;background:#fff;border:1px solid var(--ln);border-radius:12px;box-shadow:0 12px 32px rgba(11,31,58,.22);padding:8px;width:236px;grid-template-columns:1fr 1fr;gap:2px;}
+#catPop .bmp.open,#catPop .yrp.open{display:grid;}
+#catPop .bfil .bmo{display:flex;align-items:center;gap:8px;padding:5px 7px;border-radius:7px;font-size:12px;font-weight:600;letter-spacing:0;text-transform:none;color:var(--ink);cursor:pointer;}
+#catPop .bfil .bmo:hover{background:#f1f6fc;}#catPop .bfil .bmo.all{grid-column:1/-1;border-bottom:1px solid var(--ln);border-radius:7px 7px 0 0;margin-bottom:3px;font-weight:800;}
+#catPop .bfil .bmo.nd{color:#a9b4c4;}
+#catPop .bmap,#catPop .yrap{grid-column:1/-1;width:100%;margin-top:6px;border:0;background:#2d6cae;color:#fff;border-radius:9px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;}
 #catPop .bsub b{color:var(--ink);}
 #catPop .btrs{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:2px 22px 10px;}
 #catPop .btc{border:1px solid var(--ln);border-radius:14px;padding:9px 12px 6px;background:#fff;}
 #catPop .btt{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:800;color:#0b1f3a;margin-bottom:2px;}
 #catPop .btt i{width:9px;height:9px;border-radius:3px;display:inline-block;}
 #catPop .btt span{margin-left:auto;font-weight:600;color:var(--mut);font-size:10px;}
+#catPop .bts{display:flex;gap:18px;margin:2px 0 0;padding:0 2px;}
+#catPop .bts small{display:block;font-size:9px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:var(--mut);}
+#catPop .bts b{font-size:14px;font-weight:800;color:var(--ink);}
 #catPop .btm{display:grid;grid-template-columns:repeat(11,1fr);font-size:8px;color:var(--mut);text-align:center;padding:2px 2px 0;}
 #catPop .btm span.on{color:#14203a;font-weight:800;}
 #catPop .bk.r .bkv em{font-size:13px;}
@@ -7265,8 +7276,36 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
     }
     function openBD(ctx,back,opts){
       const F={z:(opts&&opts.z)||'',a:(opts&&opts.a)||''},filt=!!(F.z||F.a),rowOk=r=>(!F.z||r.z===F.z)&&(!F.a||r.a===F.a);
-      const {y,m}=getYM();
-      const mi=MO.indexOf(m),py=mi>0?y:y-1,pm=MO[(mi+11)%12];
+      const g0=getYM();
+      const dm=new Set();(DATA.products||[]).forEach(p=>(p.monthly||[]).forEach(r=>{if(NUM(r.nsi)!==0)dm.add(r.y+'|'+r.m);}));
+      const allY=!!(opts&&opts.allY);
+      const allYrs=Array.from(new Set(Array.from(dm).map(k=>+k.split('|')[0]).concat((DATA.years||[]).map(Number)))).filter(Boolean).sort();
+      let ys=allY?allYrs.slice():((opts&&opts.ys&&opts.ys.length)?opts.ys.map(Number):[(opts&&opts.y)?+opts.y:+g0.y]);
+      ys=ys.filter(Boolean).sort();if(!ys.length)ys=[+g0.y];
+      const allFlag=!!(opts&&opts.all);
+      let ms=allFlag?MO.slice():((opts&&opts.ms&&opts.ms.length)?opts.ms.slice():[(opts&&opts.m)||g0.m]);
+      ms=MO.filter(x=>ms.indexOf(x)>=0);if(!ms.length)ms=[g0.m];
+      const curList=[];ys.forEach(yr=>ms.forEach(x=>{if(!allFlag||dm.has(yr+'|'+x))curList.push({y:yr,m:x});}));
+      if(!curList.length)curList.push({y:ys[ys.length-1],m:ms[ms.length-1]});
+      curList.sort((a,b)=>a.y-b.y||MO.indexOf(a.m)-MO.indexOf(b.m));
+      const lastC=curList[curList.length-1];const y=lastC.y,m=lastC.m;
+      const keep=()=>({z:F.z,a:F.a,ys:ys,allY:allY,ms:ms,all:allFlag});
+      const mi=MO.indexOf(m);
+      const idxs=curList.map(o=>o.y*12+MO.indexOf(o.m));
+      const contig=idxs.every((v,i)=>i===0||v===idxs[i-1]+1);
+      const shiftC=(o,k)=>{const q=o.y*12+MO.indexOf(o.m)-k;return {y:Math.floor(q/12),m:MO[q%12]};};
+      const one=curList.length===1;
+      let prevList,prevLbl;
+      if(one){prevList=[shiftC(curList[0],1)];prevLbl=prevList[0].m;}
+      else if(ys.length>1){prevList=[];prevLbl='growth n/a for several years';}
+      else if(allFlag){prevList=curList.map(o=>({y:o.y-1,m:o.m}));prevLbl='same months prior year';}
+      else if(contig){prevList=curList.map(o=>shiftC(o,curList.length));prevLbl='previous '+curList.length+' months';}
+      else{prevList=curList.map(o=>shiftC(o,1));prevLbl='prior months';}
+      const curSet=new Set(curList.map(o=>o.y+'|'+o.m)),prevSet=new Set(prevList.map(o=>o.y+'|'+o.m));
+      const pm=MO[(mi+11)%12];
+      const yrLbl=allY?'All years':ys.join(', ');
+      const monPart=allFlag?'All months':(ms.length===1?ms[0]:ms.map(x=>x.slice(0,3)).join(', '));
+      const monLbl=one?m+' '+y:monPart+' · '+yrLbl;
       let imsOk=false;
       try{imsOk=typeof imsZones==='function'&&typeof IMS_P!=='undefined'&&IMS_P&&IMS_P.size>0;}catch(e){imsOk=false;}
       const isSku=ctx.kind==='sku';
@@ -7281,7 +7320,7 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       const im=(p,yy,mm)=>{if(!imsOk)return 0;if(filt)return aggOf(p).im[yy+'|'+mm]||0;try{return imsZones(p,null,yy,[mm])||0;}catch(e){return 0;}};
       const skus=[],tot=blank();
       prods.forEach(p=>{
-        const c=pr(p,y,m),pv=pr(p,py,pm),ic=im(p,y,m),ip=im(p,py,pm);
+        const S=(f,l)=>l.reduce((a,o)=>a+f(p,o.y,o.m),0);const c=S(pr,curList),pv=S(pr,prevList),ic=S(im,curList),ip=S(im,prevList);
         if(c>0||pv>0||ic>0||ip>0){skus.push({name:p.name,code:p.code,t:{c,pv,ic,ip}});tot.c+=c;tot.pv+=pv;tot.ic+=ic;tot.ip+=ip;}
       });
       skus.sort((a,b)=>b.t.c-a.t.c||b.t.ic-a.t.ic);
@@ -7289,6 +7328,7 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       const mon=[];for(let k=10;k>=0;k--){const ix=mi-k;mon.push({y:y+Math.floor(ix/12),m:MO[((ix%12)+12)%12]});}
       const mlab=mon.map(o=>o.m.slice(0,3)+" '"+String(o.y).slice(2));
       const serOf=p=>({pr:mon.map(o=>pr(p,o.y,o.m)),im:mon.map(o=>im(p,o.y,o.m))});
+      const selIdx=mon.map(o=>curSet.has(o.y+'|'+o.m));
       const tser={pr:mon.map(()=>0),im:mon.map(()=>0)};
       const bySku={};
       prods.forEach(p=>{const q=serOf(p);bySku[p.code]=q;q.pr.forEach((v,i)=>tser.pr[i]+=v);q.im.forEach((v,i)=>tser.im[i]+=v);});
@@ -7312,13 +7352,13 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
         [0,.5,1].forEach(f=>{const yy=pT+(H-pT-pB)*f;o+='<line x1="'+pL+'" x2="'+(W-pR)+'" y1="'+yy.toFixed(1)+'" y2="'+yy.toFixed(1)+'" stroke="#eef2f7" stroke-width="1"/>';});
         o+='<path d="'+d+' L'+P[n-1].x.toFixed(1)+','+(H-pB)+' L'+P[0].x.toFixed(1)+','+(H-pB)+' Z" fill="url(#'+gid+')"/>';
         o+='<path d="'+d+'" fill="none" stroke="'+col+'" stroke-width="2.4" stroke-linecap="round"/>';
-        P.forEach((p,i)=>{const last=i===n-1;
+        P.forEach((p,i)=>{const last=selIdx[i];
           o+='<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="'+(last?4.6:3.2)+'" fill="'+(last?hi:'#fff')+'" stroke="'+(last?hi:col)+'" stroke-width="2"><title>'+mlab[i]+': '+fB(p.v)+'</title></circle>';
           o+='<text x="'+p.x.toFixed(1)+'" y="'+(p.y-9).toFixed(1)+'" text-anchor="middle" font-size="'+(last?11:9.5)+'" font-weight="'+(last?800:700)+'" fill="'+(last?hi:'#33415c')+'" stroke="#fff" stroke-width="3" paint-order="stroke" stroke-linejoin="round">'+sh(p.v)+'</text>';});
         return o+'</svg>';};
       const chartCard=(ttl,vals,col,hi)=>{
-        let o='<div class="btc"><div class="btt"><i style="background:'+col+'"></i>'+ttl+'<span>last 11 months</span></div>'+line(vals,col,hi);
-        o+='<div class="btm">'+mlab.map((l,i)=>'<span'+(i===mlab.length-1?' class="on"':'')+'>'+l+'</span>').join('')+'</div></div>';return o;};
+        let o='<div class="btc"><div class="btt"><i style="background:'+col+'"></i>'+ttl+'<span>last 11 months</span></div><div class="bts"><div><small>11-month total</small><b style="color:'+col+'">'+fB(vals.reduce((x,y)=>x+y,0))+'</b></div><div><small>Monthly average</small><b>'+fB(vals.reduce((x,y)=>x+y,0)/vals.length)+'</b></div><div><small>Best month</small><b>'+esc(mlab[vals.indexOf(Math.max.apply(null,vals))])+'</b></div></div>'+line(vals,col,hi);
+        o+='<div class="btm">'+mlab.map((l,i)=>'<span'+(selIdx[i]?' class="on"':'')+'>'+l+'</span>').join('')+'</div></div>';return o;};
       const tree={},tt=blank();
       const add=(z,a,d,k,v)=>{
         z=z||'Not mapped';a=a||'Not mapped';d=d||'Not mapped';
@@ -7326,16 +7366,16 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
         Z.t[k]+=v;A.t[k]+=v;D.t[k]+=v;tt[k]+=v;
       };
       prods.forEach(p=>{
-        (p.custMonthly||[]).forEach(r=>{if(!rowOk(r))return;if(+r.y===y&&r.m===m)add(r.z,r.a,r.c,'c',NUM(r.nsi));else if(+r.y===py&&r.m===pm)add(r.z,r.a,r.c,'pv',NUM(r.nsi));});
-        if(imsOk){const o=IMS_P.get(String(p.code));if(o)o.cm.forEach(r=>{if(!rowOk(r))return;if(+r.y===y&&r.m===m)add(r.z,r.a,r.c,'ic',NUM(r.v));else if(+r.y===py&&r.m===pm)add(r.z,r.a,r.c,'ip',NUM(r.v));});}
+        (p.custMonthly||[]).forEach(r=>{if(!rowOk(r))return;const kk=r.y+'|'+r.m;if(curSet.has(kk))add(r.z,r.a,r.c,'c',NUM(r.nsi));if(prevSet.has(kk))add(r.z,r.a,r.c,'pv',NUM(r.nsi));});
+        if(imsOk){const o=IMS_P.get(String(p.code));if(o)o.cm.forEach(r=>{if(!rowOk(r))return;const kk=r.y+'|'+r.m;if(curSet.has(kk))add(r.z,r.a,r.c,'ic',NUM(r.v));if(prevSet.has(kk))add(r.z,r.a,r.c,'ip',NUM(r.v));});}
       });
       const touch=(z,a,d)=>{const Z=tree[z]||(tree[z]={n:z,t:blank(),a:{}}),A=Z.a[a]||(Z.a[a]={n:a,t:blank(),d:{}});if(!A.d[d])A.d[d]={n:d,t:blank()};};
       /* Active base = every distributor (Primary customer) that billed anything in the selected month or the two months before it */
-      const uniSum={},last3=mon.slice(8).map(o=>o.y+'|'+o.m);
+      const uniSum={},last3=Array.from(new Set(mon.slice(8).map(o=>o.y+'|'+o.m).concat(Array.from(curSet))));
       (DATA.products||[]).forEach(p=>(p.custMonthly||[]).forEach(r=>{if(!r.c||!rowOk(r))return;const k=r.y+'|'+r.m;if(last3.indexOf(k)<0)return;const key=(r.z||'Not mapped')+'\u0001'+(r.a||'Not mapped')+'\u0001'+r.c;uniSum[key]=(uniSum[key]||0)+NUM(r.nsi);}));
       const mapKeys=new Set();Object.keys(uniSum).forEach(k=>{if(uniSum[k]>0){const q=k.split('\u0001');touch(q[0],q[1],q[2]);mapKeys.add(k);}});
       if(!filt)[['c',tot.c-tt.c],['pv',tot.pv-tt.pv]].forEach(([k,d])=>{if(d>1)add('Not mapped','Not mapped','Not mapped',k,d);});
-      const hasP=true,hasI=imsOk;
+      const hasP=ys.length===1,hasI=imsOk&&ys.length===1;
       const vis=t=>t.c>0||t.pv>0||t.ic>0||t.ip>0;
       const srt=(a,b)=>(b.t.c-a.t.c)||(b.t.ic-a.t.ic)||String(a.n).localeCompare(String(b.n));
       let dTot=0,dBilled=0;
@@ -7378,9 +7418,9 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       });
       if(!vis(tt))tr+='<div class="bempty">No zone / distributor data for this selection in the selected period.</div>';
       const kpi=(lbl,v,pv,has,cls,sub)=>'<div class="bk '+cls+'"><div class="bkl">'+lbl+'</div><div class="bkv">'+fB(v)+'</div><div class="bks">'+pill(v,pv,has)+'<span>'+sub+'</span></div></div>';
-      const kpis=kpi('Primary sales (NSI)',tot.c,tot.pv,hasP,'p','vs '+esc(pm))
-        +kpi('Secondary sales (IMS)',tot.ic,tot.ip,hasI,'i',imsOk?'vs '+esc(pm):'IMS not loaded')
-        +'<div class="bk r"><div class="bkl">Distributors billing (Primary)</div><div class="bkv">'+dBilled+'<em> of '+dTot+'</em></div><div class="bks"><span class="zbp">'+(dTot-dBilled)+' with 0 billing</span><span>Active base '+dTot+' · billed in '+mlab[8].split(' ')[0]+'–'+mlab[10]+'</span></div></div>';
+      const kpis=kpi('Primary sales (NSI)',tot.c,tot.pv,hasP,'p',ys.length>1?'':'vs '+esc(prevLbl))
+        +kpi('Secondary sales (IMS)',tot.ic,tot.ip,hasI,'i',imsOk?(ys.length>1?'':'vs '+esc(prevLbl)):'IMS not loaded')
+        +'<div class="bk r"><div class="bkl">Distributors billing (Primary)</div><div class="bkv">'+dBilled+'<em> of '+dTot+'</em></div><div class="bks"><span class="zbp">'+(dTot-dBilled)+' with 0 billing</span><span>Active base '+dTot+' · billed in '+(one?mlab[8].split(' ')[0]+'–'+mlab[10]:'selected + 2 prior months')+'</span></div></div>';
       const zm=DATA.zone_asm_map||{};
       const zOpts=Object.keys(zm).sort().map(z=>'<option value="'+esc(z)+'"'+(z===F.z?' selected':'')+'>'+esc(z)+'</option>').join('');
       const aList=F.z?(zm[F.z]||[]):Array.from(new Set([].concat.apply([],Object.keys(zm).map(z=>zm[z])))).sort();
@@ -7389,8 +7429,8 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       const bg=document.createElement('div');bg.id='catPopBg';
       bg.innerHTML='<div id="catPop" role="dialog" aria-modal="true"><div class="bhead"><div class="bttl">'
         +(back?'<button type="button" class="bback">‹ '+esc(back.cat)+'</button>':'')
-        +'<span class="bkick">'+(isSku?'SKU':'Category')+'</span><h2>'+esc(title)+'</h2><div class="bsub">'+(isSku?esc(ctx.code)+' · ':'')+esc(m+' '+y)+' · Gr% vs '+esc(pm)+(filt?' · <b>'+esc(F.z||'')+(F.z&&F.a?' › ':'')+esc(F.a||'')+'</b>':'')+'</div></div><button type="button" class="bx" aria-label="Close">×</button></div>'
-        +'<div class="bfil"><label>Zone / ZSM<select class="bfz"><option value="">All</option>'+zOpts+'</select></label><label>ASM<select class="bfa"><option value="">All</option>'+aOpts+'</select></label>'+(filt?'<button type="button" class="bfc">Clear filters</button>':'')+'</div><div class="btrs">'+chartCard('Primary sales (NSI)',tser.pr,'#2d6cae','#ef8c2f')+chartCard('Secondary sales (IMS)',tser.im,'#0f9d8a','#0b6e60')+'</div><div class="bkpis">'+kpis+'</div>'
+        +'<span class="bkick">'+(isSku?'SKU':'Category')+'</span><h2>'+esc(title)+'</h2><div class="bsub">'+(isSku?esc(ctx.code)+' · ':'')+esc(monLbl)+(ys.length>1?' · growth shown for single-year views only':' · Gr% vs '+esc(prevLbl))+(filt?' · <b>'+esc(F.z||'')+(F.z&&F.a?' › ':'')+esc(F.a||'')+'</b>':'')+'</div></div><button type="button" class="bx" aria-label="Close">×</button></div>'
+        +'<div class="bfil"><label>Month<span class="bmw"><button type="button" class="bmb">'+esc(allFlag?'All months':(ms.length===1?ms[0]:ms.length+' months'))+' ▾</button><div class="bmp"><label class="bmo all"><input type="checkbox" class="bma"'+(allFlag?' checked':'')+'> All months</label>'+MO.map(x=>'<label class="bmo'+(ys.some(yr=>dm.has(yr+'|'+x))?'':' nd')+'"><input type="checkbox" class="bmc" value="'+x+'"'+(ms.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="bmap">Apply</button></div></span></label><label>Year<span class="bmw yrw"><button type="button" class="yrb">'+esc(allY?'All years':(ys.length===1?ys[0]:ys.length+' years'))+' ▾</button><div class="yrp"><label class="bmo all"><input type="checkbox" class="yra"'+(allY?' checked':'')+'> All years</label>'+allYrs.map(x=>'<label class="bmo"><input type="checkbox" class="yrc" value="'+x+'"'+(ys.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="yrap">Apply</button></div></span></label><label>Zone / ZSM<select class="bfz"><option value="">All</option>'+zOpts+'</select></label><label>ASM<select class="bfa"><option value="">All</option>'+aOpts+'</select></label>'+(filt?'<button type="button" class="bfc">Clear filters</button>':'')+'</div><div class="btrs">'+chartCard('Primary sales (NSI)',tser.pr,'#2d6cae','#ef8c2f')+chartCard('Secondary sales (IMS)',tser.im,'#0f9d8a','#0b6e60')+'</div><div class="bkpis">'+kpis+'</div>'
         +'<div class="btools">'
         +(isSku?'<div class="bseg"><button type="button" class="on" data-t="z">Zone › ASM › Distributor</button></div>':'<div class="bseg"><button type="button" class="on" data-t="s">SKUs</button><button type="button" data-t="z">Zone › ASM › Distributor</button></div>')
         +'<input class="bsrch" type="search" placeholder="Search…" aria-label="Search"><span class="bact" style="display:none"><button type="button" data-a="zero" class="bzero">0-billing only</button><button type="button" data-a="open">Expand all</button><button type="button" data-a="shut">Collapse all</button></span></div>'
@@ -7409,9 +7449,28 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       };
       setTab(isSku?'z':((opts&&opts.tab)||'s'));
       const curTab=()=>{const b=bg.querySelector('.bseg .on');return b?b.getAttribute('data-t'):'s';};
-      bg.querySelector('.bfz').addEventListener('change',e=>openBD(ctx,back,{z:e.target.value,a:'',tab:curTab()}));
-      bg.querySelector('.bfa').addEventListener('change',e=>openBD(ctx,back,{z:F.z,a:e.target.value,tab:curTab()}));
-      const bfc=bg.querySelector('.bfc');if(bfc)bfc.addEventListener('click',()=>openBD(ctx,back,{z:'',a:'',tab:curTab()}));
+      bg.querySelector('.bfz').addEventListener('change',e=>openBD(ctx,back,Object.assign(keep(),{z:e.target.value,a:'',tab:curTab()})));
+      bg.querySelector('.bfa').addEventListener('change',e=>openBD(ctx,back,Object.assign(keep(),{a:e.target.value,tab:curTab()})));
+      const bfc=bg.querySelector('.bfc');if(bfc)bfc.addEventListener('click',()=>openBD(ctx,back,Object.assign(keep(),{z:'',a:'',tab:curTab()})));
+      const bmp=bg.querySelector('.bmp'),bma=bg.querySelector('.bma'),bmcs=[].slice.call(bg.querySelectorAll('.bmc'));
+      bg.querySelector('.bmb').addEventListener('click',()=>bmp.classList.toggle('open'));
+      bma.addEventListener('change',()=>{bmcs.forEach(c=>{c.checked=bma.checked&&!c.parentNode.classList.contains('nd');});});
+      bmcs.forEach(c=>c.addEventListener('change',()=>{bma.checked=false;}));
+      bg.querySelector('.bmap').addEventListener('click',()=>{
+        const sel=bmcs.filter(c=>c.checked).map(c=>c.value);
+        if(bma.checked)openBD(ctx,back,Object.assign(keep(),{all:true,tab:curTab()}));
+        else if(sel.length)openBD(ctx,back,Object.assign(keep(),{ms:sel,all:false,tab:curTab()}));
+        else bmp.classList.remove('open');});
+      const yrp=bg.querySelector('.yrp'),yra=bg.querySelector('.yra'),yrcs=[].slice.call(bg.querySelectorAll('.yrc'));
+      bg.querySelector('.yrb').addEventListener('click',()=>{bmp.classList.remove('open');yrp.classList.toggle('open');});
+      bg.querySelector('.bmb').addEventListener('click',()=>yrp.classList.remove('open'));
+      yra.addEventListener('change',()=>{yrcs.forEach(c=>{c.checked=yra.checked;});});
+      yrcs.forEach(c=>c.addEventListener('change',()=>{yra.checked=false;}));
+      bg.querySelector('.yrap').addEventListener('click',()=>{
+        const sel=yrcs.filter(c=>c.checked).map(c=>+c.value);
+        if(yra.checked)openBD(ctx,back,Object.assign(keep(),{allY:true,tab:curTab()}));
+        else if(sel.length)openBD(ctx,back,Object.assign(keep(),{ys:sel,allY:false,tab:curTab()}));
+        else yrp.classList.remove('open');});
       const filter=()=>{
         const q=bg.querySelector('.bsrch').value.trim().toLowerCase();
         bg.querySelectorAll('.bs').forEach(r=>{r.style.display=!q||r.getAttribute('data-q').indexOf(q)>=0?'':'none';});
@@ -7431,14 +7490,16 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       };
       bg.querySelector('.bsrch').addEventListener('input',filter);
       bg.addEventListener('click',e=>{
+        if(!e.target.closest('.bmw:not(.yrw)'))bg.querySelector('.bmp').classList.remove('open');
+        if(!e.target.closest('.yrw'))bg.querySelector('.yrp').classList.remove('open');
         if(e.target===bg||e.target.closest('.bx')){close();return;}
-        if(e.target.closest('.bback')){openBD({kind:'cat',cat:back.cat},undefined,{z:F.z,a:F.a});return;}
+        if(e.target.closest('.bback')){openBD({kind:'cat',cat:back.cat},undefined,keep());return;}
         const tb=e.target.closest('.bseg [data-t]');if(tb){setTab(tb.getAttribute('data-t'));return;}
         const ac=e.target.closest('.bact [data-a]');
         if(ac&&ac.getAttribute('data-a')==='zero'){ac.classList.toggle('on');filter();return;}
         if(ac){const o=ac.getAttribute('data-a')==='open';bg.querySelectorAll('.bnode').forEach(n=>{if(n.querySelector(':scope > .bkids'))n.classList.toggle('open',o);});return;}
         const sk=e.target.closest('.bs');
-        if(sk){openBD({kind:'sku',cat:ctx.cat,code:sk.getAttribute('data-code')},{cat:ctx.cat},{z:F.z,a:F.a});return;}
+        if(sk){openBD({kind:'sku',cat:ctx.cat,code:sk.getAttribute('data-code')},{cat:ctx.cat},keep());return;}
         const tg=e.target.closest('.btg');
         if(tg){tg.parentNode.classList.toggle('open');}
       });
