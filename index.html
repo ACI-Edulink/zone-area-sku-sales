@@ -845,6 +845,7 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 .cat-row-name{min-width:90px;}
 .cat-row.cat-exp{cursor:pointer;user-select:none;}
 .cat-row.cat-gt{position:sticky;top:24px;z-index:3;background:#eef3fa;font-weight:800;border-bottom:2px solid var(--line);cursor:default;}
+.cat-row.cat-gt{cursor:pointer;}.cat-row.cat-gt:hover{background:#e3ecf8;}
 .cat-row.cat-gt .cat-row-name,.cat-row.cat-gt .cat-row-val{font-weight:800;}
 .cat-chev{display:inline-block;width:10px;font-size:9px;color:var(--muted);transition:transform .15s;margin-right:2px;}
 .cat-row.open .cat-chev{transform:rotate(90deg);}
@@ -7235,7 +7236,7 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
     const totPrev=Object.values(prevCat).reduce((s,v)=>s+(+v||0),0);
     const totIc=Object.values(imsCur).reduce((s,v)=>s+v,0),totIp=Object.values(imsPrev).reduce((s,v)=>s+v,0);
     let html='<div class="cat-hd"><div class="h-n">Category</div><div class="h-v">Primary</div><div class="h-g">Gr%</div><div class="h-v">IMS</div><div class="h-g">Gr%</div></div>'
-      +'<div class="cat-row cat-gt">'
+      +'<div class="cat-row cat-gt" data-cat="__ALL__" onclick="openCatPop(this)" title="Click for all categories: trend, SKUs and Zone / ASM / Distributor breakdown">'
       +'<div class="cat-color-dot" style="background:transparent;"></div>'
       +'<div class="cat-row-name">Grand Total</div>'
       +'<div class="cat-row-val">'+fBSummary(totCur)+'</div>'
@@ -7312,8 +7313,8 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       let imsOk=false;
       try{imsOk=typeof imsZones==='function'&&typeof IMS_P!=='undefined'&&IMS_P&&IMS_P.size>0;}catch(e){imsOk=false;}
       const isSku=ctx.kind==='sku';
-      const prods=(DATA.products||[]).filter(p=>isSku?String(p.code)===String(ctx.code):p.category===ctx.cat);
-      const title=isSku?(prods[0]?prods[0].name:ctx.code):ctx.cat;
+      const prods=(DATA.products||[]).filter(p=>isSku?String(p.code)===String(ctx.code):(ctx.cat==='__ALL__'||p.category===ctx.cat));
+      const title=isSku?(prods[0]?prods[0].name:ctx.code):(ctx.cat==='__ALL__'?'All Categories':ctx.cat);
       const sumM=(arr,yy,mm)=>{let t=0;(arr||[]).forEach(r=>{if(+r.y===yy&&r.m===mm)t+=NUM(r.nsi);});return t;};
       const blank=()=>({c:0,pv:0,ic:0,ip:0});
       const aggA=(arr,key)=>{const o={};(arr||[]).forEach(r=>{if(!rowOk(r))return;const k=r.y+'|'+r.m;o[k]=(o[k]||0)+NUM(r[key]);});return o;};
@@ -7431,7 +7432,7 @@ pencil-Tri-HB</td><td class="col-sticky col-s3"><span class="tag">Graphite Penci
       const old=document.getElementById('catPopBg');if(old)old.remove();
       const bg=document.createElement('div');bg.id='catPopBg';
       bg.innerHTML='<div id="catPop" role="dialog" aria-modal="true"><div class="bhead"><div class="bttl">'
-        +(back?'<button type="button" class="bback">‹ '+esc(back.cat)+'</button>':'')
+        +(back?'<button type="button" class="bback">‹ '+esc(back.cat==='__ALL__'?'All Categories':back.cat)+'</button>':'')
         +'<span class="bkick">'+(isSku?'SKU':'Category')+'</span><h2>'+esc(title)+'</h2><div class="bsub">'+(isSku?esc(ctx.code)+' · ':'')+esc(monLbl)+(ys.length>1?' · growth shown for single-year views only':' · Gr% vs '+esc(prevLbl))+(filt?' · <b>'+esc(F.z||'')+(F.z&&F.a?' › ':'')+esc(F.a||'')+'</b>':'')+'</div></div><button type="button" class="bx" aria-label="Close">×</button></div>'
         +'<div class="bfil"><label>Month<span class="bmw"><button type="button" class="bmb">'+esc(allFlag?'All months':(ms.length===1?ms[0]:ms.length+' months'))+' ▾</button><div class="bmp"><label class="bmo all"><input type="checkbox" class="bma"'+(allFlag?' checked':'')+'> All months</label>'+MO.map(x=>'<label class="bmo'+(ys.some(yr=>dm.has(yr+'|'+x))?'':' nd')+'"><input type="checkbox" class="bmc" value="'+x+'"'+(ms.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="bmap">Apply</button></div></span></label><label>Year<span class="bmw yrw"><button type="button" class="yrb">'+esc(allY?'All years':(ys.length===1?ys[0]:ys.length+' years'))+' ▾</button><div class="yrp"><label class="bmo all"><input type="checkbox" class="yra"'+(allY?' checked':'')+'> All years</label>'+allYrs.map(x=>'<label class="bmo"><input type="checkbox" class="yrc" value="'+x+'"'+(ys.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="yrap">Apply</button></div></span></label><label>Zone / ZSM<select class="bfz"><option value="">All</option>'+zOpts+'</select></label><label>ASM<select class="bfa"><option value="">All</option>'+aOpts+'</select></label>'+(filt?'<button type="button" class="bfc">Clear filters</button>':'')+'</div><div class="btrs">'+chartCard('Primary sales (NSI)',tser.pr,'#2d6cae','#ef8c2f')+chartCard('Secondary sales (IMS)',tser.im,'#0f9d8a','#0b6e60')+'</div><div class="bkpis">'+kpis+'</div>'
         +'<div class="btools">'
