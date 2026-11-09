@@ -926,6 +926,14 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 #catPop .bfil .bmo:hover{background:#f1f6fc;}#catPop .bfil .bmo.all{grid-column:1/-1;border-bottom:1px solid var(--ln);border-radius:7px 7px 0 0;margin-bottom:3px;font-weight:800;}
 #catPop .bfil .bmo.nd{color:#a9b4c4;}
 #catPop .bmap,#catPop .yrap,#catPop .cgap{grid-column:1/-1;width:100%;margin-top:6px;border:0;background:#2d6cae;color:#fff;border-radius:9px;padding:7px;font-size:12px;font-weight:700;cursor:pointer;}
+#catPop .bhint{display:inline;margin-left:8px;font-size:9.5px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--mut);}
+#catPop .bgrp>.br{min-height:46px;background-color:#f8fafd;border-left:4px solid #c9d6e8;cursor:pointer;}
+#catPop .bgrp>.br .bn{font-weight:800;color:#0b1f3a;}
+#catPop .bgrp>.br:hover{background-color:#f0f5fb;}
+#catPop .bgrp.sel>.br{border-left-color:#ef8c2f;background-color:#fff6ea;}
+#catPop .bgrp.open>.bkids{display:block;}
+#catPop .bgrp .bkids .bs .bn{padding-left:34px;font-weight:600;}
+#catPop .bgrp.open>.btg .bchev,#catPop .bgrp.open>.bcg .bchev{transform:rotate(90deg);}
 #catPop .bsub b{color:var(--ink);}
 #catPop .btrs{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:2px 22px 10px;}
 #catPop .btc{border:1px solid var(--ln);border-radius:14px;padding:9px 12px 6px;background:#fff;}
@@ -6895,7 +6903,7 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
       try{imsOk=typeof imsZones==='function'&&typeof IMS_P!=='undefined'&&IMS_P&&IMS_P.size>0;}catch(e){imsOk=false;}
       const isSku=ctx.kind==='sku';
       const prods=(DATA.products||[]).filter(p=>isSku?String(p.code)===String(ctx.code):(ctx.cat==='__ALL__'?(!catsSel.length||catsSel.indexOf(p.category)>=0):p.category===ctx.cat));
-      const title=isSku?(prods[0]?prods[0].name:ctx.code):(ctx.cat==='__ALL__'?(catsSel.length?(catsSel.length===1?catsSel[0]:catsSel.length+' Categories'):'All Categories'):ctx.cat);
+      const title=isSku?(prods[0]?prods[0].name:ctx.code):(ctx.cat==='__ALL__'?'All Categories':ctx.cat);
       const sumM=(arr,yy,mm)=>{let t=0;(arr||[]).forEach(r=>{if(+r.y===yy&&r.m===mm)t+=NUM(r.nsi);});return t;};
       const blank=()=>({c:0,pv:0,ic:0,ip:0});
       const aggA=(arr,key)=>{const o={};(arr||[]).forEach(r=>{if(!rowOk(r))return;const k=r.y+'|'+r.m;o[k]=(o[k]||0)+NUM(r[key]);});return o;};
@@ -6972,7 +6980,23 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
       const colHead=lbl=>'<div class="bh"><div>'+lbl+'</div><div class="r">Primary</div><div class="r">Gr%</div><div class="r">IMS</div><div class="r">Gr%</div></div>';
       /* SKU list (category view only) */
       let skuHtml='';
-      if(!isSku){
+      if(isAllCat){
+        const rowsAll=[];
+        (DATA.products||[]).forEach(p=>{const S2=(f,l)=>l.reduce((a,o)=>a+f(p,o.y,o.m),0);const c=S2(pr,curList),pv=S2(pr,prevList),ic=S2(im,curList),ip=S2(im,prevList);
+          if(c>0||pv>0||ic>0||ip>0)rowsAll.push({name:p.name,code:p.code,cat:p.category||'Other',t:{c,pv,ic,ip}});});
+        const grp={};rowsAll.forEach(k=>{const G=grp[k.cat]||(grp[k.cat]={cat:k.cat,t:blank(),k:[]});G.k.push(k);['c','pv','ic','ip'].forEach(f=>G.t[f]+=k.t[f]);});
+        const gl=Object.values(grp).sort((a,b)=>b.t.c-a.t.c||b.t.ic-a.t.ic);
+        const gt=blank();gl.forEach(G=>['c','pv','ic','ip'].forEach(f=>gt[f]+=G.t[f]));
+        const gmx=Math.max.apply(null,gl.map(G=>G.t.c).concat([1]));
+        skuHtml='<div class="bh sk"><div>Category › SKU <small class="bhint">click a category to expand and see its totals above</small></div><div class="r">Primary</div><div class="r">Gr%</div><div class="r">IMS</div><div class="r">Gr%</div></div><div class="br bt sk"><div class="bn">Grand Total <small>'+gl.length+' categories · '+rowsAll.length+' SKUs</small></div>'+cells(gt)+'</div>';
+        gl.forEach(G=>{
+          const open=catsSel.length===1&&catsSel[0]===G.cat;
+          G.k.sort((a,b)=>b.t.c-a.t.c||b.t.ic-a.t.ic);const kmx=Math.max.apply(null,G.k.map(k=>k.t.c).concat([1]));
+          skuHtml+='<div class="bnode bgrp'+(open?' open sel':'')+'" data-cat="'+esc(G.cat)+'" data-q="'+esc(G.cat.toLowerCase())+'"><div class="br bcg" '+tint(G.t.c,gmx)+'><div class="bn"><i class="bchev">▶</i>'+esc(G.cat)+'<small>'+G.k.length+' SKU'+(G.k.length===1?'':'s')+'</small></div>'+cells(G.t)+'</div><div class="bkids">';
+          G.k.forEach(k=>{skuHtml+='<div class="br bs" data-q="'+esc((k.name+' '+k.code+' '+G.cat).toLowerCase())+'" data-code="'+esc(k.code)+'" '+tint(k.t.c,kmx)+'><div class="bn">'+esc(k.name)+'<small>'+esc(k.code)+'</small></div>'+cells(k.t)+'<span class="bgo">›</span></div>';});
+          skuHtml+='</div></div>';});
+        if(!gl.length)skuHtml+='<div class="bempty">No sales in the selected period.</div>';
+      } else if(!isSku){
         const mx=Math.max.apply(null,skus.map(k=>k.t.c).concat([1]));
         skuHtml='<div class="bh sk"><div>SKU</div><div class="r">Primary</div><div class="r">Gr%</div><div class="r">IMS</div><div class="r">Gr%</div></div><div class="br bt sk"><div class="bn">All SKUs <small>'+skus.length+'</small></div>'+cells(tot)+'</div>';
         skus.forEach(k=>{const bs=bySku[k.code];skuHtml+='<div class="br bs sk" data-q="'+esc((k.name+' '+k.code).toLowerCase())+'" data-code="'+esc(k.code)+'" '+tint(k.t.c,mx)+'><div class="bn">'+esc(k.name)+'<small>'+esc(k.code)+'</small></div>'+cells(k.t)+'<span class="bgo">›</span></div>';});
@@ -7007,7 +7031,7 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
         +kpi('Secondary sales (IMS)',tot.ic,tot.ip,hasI,'i',imsOk?(ys.length>1?'':'vs '+esc(prevLbl)):'IMS not loaded')
         +'<div class="bk r"><div class="bkl">Distributors billing (Primary)</div><div class="bkv">'+dBilled+'<em> of '+dTot+'</em></div><div class="bks"><span class="zbp">'+(dTot-dBilled)+' with 0 billing</span><span>Active base '+dTot+' · billed in '+(one?mlab[8].split(' ')[0]+'–'+mlab[10]:'selected + 2 prior months')+'</span></div></div>';
       const allCats=Array.from(new Set((DATA.products||[]).map(p=>p.category).filter(Boolean))).sort();
-      const catCtl=isAllCat?'<label>Category<span class="bmw cgw"><button type="button" class="cgb">'+esc(catsSel.length===0?'All categories':(catsSel.length===1?catsSel[0]:catsSel.length+' categories'))+' ▾</button><div class="cgp"><label class="bmo all"><input type="checkbox" class="cga"'+(catsSel.length===0?' checked':'')+'> All categories</label>'+allCats.map(x=>'<label class="bmo"><input type="checkbox" class="cgc" value="'+esc(x)+'"'+(catsSel.indexOf(x)>=0?' checked':'')+'> '+esc(x)+'</label>').join('')+'<button type="button" class="cgap">Apply</button></div></span></label>':'';
+      const catCtl='';const _unusedCatCtl=isAllCat&&false?'<label>Category<span class="bmw cgw"><button type="button" class="cgb">'+esc(catsSel.length===0?'All categories':(catsSel.length===1?catsSel[0]:catsSel.length+' categories'))+' ▾</button><div class="cgp"><label class="bmo all"><input type="checkbox" class="cga"'+(catsSel.length===0?' checked':'')+'> All categories</label>'+allCats.map(x=>'<label class="bmo"><input type="checkbox" class="cgc" value="'+esc(x)+'"'+(catsSel.indexOf(x)>=0?' checked':'')+'> '+esc(x)+'</label>').join('')+'<button type="button" class="cgap">Apply</button></div></span></label>':'';
       const zm=DATA.zone_asm_map||{};
       const zOpts=Object.keys(zm).sort().map(z=>'<option value="'+esc(z)+'"'+(z===F.z?' selected':'')+'>'+esc(z)+'</option>').join('');
       const aList=F.z?(zm[F.z]||[]):Array.from(new Set([].concat.apply([],Object.keys(zm).map(z=>zm[z])))).sort();
@@ -7016,7 +7040,7 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
       const bg=document.createElement('div');bg.id='catPopBg';
       bg.innerHTML='<div id="catPop" role="dialog" aria-modal="true"><div class="bhead"><div class="bttl">'
         +(back?'<button type="button" class="bback">‹ '+esc(back.cat==='__ALL__'?'All Categories':back.cat)+'</button>':'')
-        +'<span class="bkick">'+(isSku?'SKU':'Category')+'</span><h2>'+esc(title)+'</h2><div class="bsub">'+(isSku?esc(ctx.code)+' · ':'')+esc(monLbl)+(ys.length>1?' · growth shown for single-year views only':' · Gr% vs '+esc(prevLbl))+(isAllCat&&catsSel.length>1?' · '+esc(catsSel.join(', ')):'')+(filt?' · <b>'+esc(F.z||'')+(F.z&&F.a?' › ':'')+esc(F.a||'')+'</b>':'')+'</div></div><button type="button" class="bx" aria-label="Close">×</button></div>'
+        +'<span class="bkick">'+(isSku?'SKU':'Category')+'</span><h2>'+esc(title)+'</h2><div class="bsub">'+(isSku?esc(ctx.code)+' · ':'')+esc(monLbl)+(ys.length>1?' · growth shown for single-year views only':' · Gr% vs '+esc(prevLbl))+(isAllCat&&catsSel.length?' · Category: <b>'+esc(catsSel.join(', '))+'</b>':'')+(filt?' · <b>'+esc(F.z||'')+(F.z&&F.a?' › ':'')+esc(F.a||'')+'</b>':'')+'</div></div><button type="button" class="bx" aria-label="Close">×</button></div>'
         +'<div class="bfil">'+catCtl+'<label>Month<span class="bmw"><button type="button" class="bmb">'+esc(allFlag?'All months':(ms.length===1?ms[0]:ms.length+' months'))+' ▾</button><div class="bmp"><label class="bmo all"><input type="checkbox" class="bma"'+(allFlag?' checked':'')+'> All months</label>'+MO.map(x=>'<label class="bmo'+(ys.some(yr=>dm.has(yr+'|'+x))?'':' nd')+'"><input type="checkbox" class="bmc" value="'+x+'"'+(ms.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="bmap">Apply</button></div></span></label><label>Year<span class="bmw yrw"><button type="button" class="yrb">'+esc(allY?'All years':(ys.length===1?ys[0]:ys.length+' years'))+' ▾</button><div class="yrp"><label class="bmo all"><input type="checkbox" class="yra"'+(allY?' checked':'')+'> All years</label>'+allYrs.map(x=>'<label class="bmo"><input type="checkbox" class="yrc" value="'+x+'"'+(ys.indexOf(x)>=0?' checked':'')+'> '+x+'</label>').join('')+'<button type="button" class="yrap">Apply</button></div></span></label><label>Zone / ZSM<select class="bfz"><option value="">All</option>'+zOpts+'</select></label><label>ASM<select class="bfa"><option value="">All</option>'+aOpts+'</select></label>'+(filt?'<button type="button" class="bfc">Clear filters</button>':'')+'</div><div class="btrs">'+chartCard('Primary sales (NSI)',tser.pr,'#2d6cae','#ef8c2f')+chartCard('Secondary sales (IMS)',tser.im,'#0f9d8a','#0b6e60')+'</div><div class="bkpis">'+kpis+'</div>'
         +'<div class="btools">'
         +(isSku?'<div class="bseg"><button type="button" class="on" data-t="z">Zone › ASM › Distributor</button></div>':'<div class="bseg"><button type="button" class="on" data-t="s">SKUs</button><button type="button" data-t="z">Zone › ASM › Distributor</button></div>')
@@ -7024,6 +7048,7 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
         +'<div class="bbody"><div class="bpane" data-p="s"'+(isSku?' style="display:none"':'')+'>'+skuHtml+'</div><div class="bpane" data-p="z"'+(isSku?'':' style="display:none"')+'>'+tr+'</div></div>'
         +'<div class="bfoot">Primary = primary sales (NSI) by zone, ASM and customer. IMS = secondary sales by distributor, counted by IMS period month. Active distributors = billed Primary in the selected month or the 2 months before it. Figures in ৳.</div></div>';
       document.body.appendChild(bg);
+      if(opts&&opts.sc){bg.style.animation='none';bg.querySelector('#catPop').style.animation='none';bg.querySelector('#catPop').scrollTop=opts.sc[0];bg.querySelector('.bbody').scrollTop=opts.sc[1];}
       const close=()=>{bg.remove();document.removeEventListener('keydown',onKey);};
       const onKey=e=>{if(e.key==='Escape')close();};
       document.addEventListener('keydown',onKey);
@@ -7048,15 +7073,6 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
         if(bma.checked)openBD(ctx,back,Object.assign(keep(),{all:true,tab:curTab()}));
         else if(sel.length)openBD(ctx,back,Object.assign(keep(),{ms:sel,all:false,tab:curTab()}));
         else bmp.classList.remove('open');});
-      if(isAllCat){
-        const cgp=bg.querySelector('.cgp'),cga=bg.querySelector('.cga'),cgcs=[].slice.call(bg.querySelectorAll('.cgc'));
-        bg.querySelector('.cgb').addEventListener('click',()=>{bmp.classList.remove('open');bg.querySelector('.yrp').classList.remove('open');cgp.classList.toggle('open');});
-        bg.querySelector('.bmb').addEventListener('click',()=>cgp.classList.remove('open'));
-        bg.querySelector('.yrb').addEventListener('click',()=>cgp.classList.remove('open'));
-        cga.addEventListener('change',()=>{cgcs.forEach(c=>{c.checked=false;});cga.checked=true;});
-        cgcs.forEach(c=>c.addEventListener('change',()=>{cga.checked=!cgcs.some(x=>x.checked);}));
-        bg.querySelector('.cgap').addEventListener('click',()=>{const sel=cgcs.filter(c=>c.checked).map(c=>c.value);openBD(ctx,back,Object.assign(keep(),{cats:sel,tab:curTab()}));});
-      }
       const yrp=bg.querySelector('.yrp'),yra=bg.querySelector('.yra'),yrcs=[].slice.call(bg.querySelectorAll('.yrc'));
       bg.querySelector('.yrb').addEventListener('click',()=>{bmp.classList.remove('open');yrp.classList.toggle('open');});
       bg.querySelector('.bmb').addEventListener('click',()=>yrp.classList.remove('open'));
@@ -7070,6 +7086,7 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
       const filter=()=>{
         const q=bg.querySelector('.bsrch').value.trim().toLowerCase();
         bg.querySelectorAll('.bs').forEach(r=>{r.style.display=!q||r.getAttribute('data-q').indexOf(q)>=0?'':'none';});
+        bg.querySelectorAll('.bgrp').forEach(g=>{const any=[].some.call(g.querySelectorAll('.bs'),r=>r.style.display!=='none');g.style.display=any?'':'none';if(q&&any)g.classList.add('open');});
         const zo=bg.querySelector('.bzero').classList.contains('on');
         const walk=(n,force)=>{
           const own=!q||n.getAttribute('data-q').indexOf(q)>=0;
@@ -7087,7 +7104,6 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
       bg.querySelector('.bsrch').addEventListener('input',filter);
       bg.addEventListener('click',e=>{
         if(!e.target.closest('.bmw:not(.yrw):not(.cgw)'))bg.querySelector('.bmp').classList.remove('open');
-        if(isAllCat&&!e.target.closest('.cgw'))bg.querySelector('.cgp').classList.remove('open');
         if(!e.target.closest('.yrw'))bg.querySelector('.yrp').classList.remove('open');
         if(e.target===bg||e.target.closest('.bx')){close();return;}
         if(e.target.closest('.bback')){openBD({kind:'cat',cat:back.cat},undefined,keep());return;}
@@ -7095,6 +7111,9 @@ pencil-Tri-HB</div><div class="mc-cd">ACI 500099</div><div class="mc-bd"><span c
         const ac=e.target.closest('.bact [data-a]');
         if(ac&&ac.getAttribute('data-a')==='zero'){ac.classList.toggle('on');filter();return;}
         if(ac){const o=ac.getAttribute('data-a')==='open';bg.querySelectorAll('.bnode').forEach(n=>{if(n.querySelector(':scope > .bkids'))n.classList.toggle('open',o);});return;}
+        const cg=e.target.closest('.bcg');
+        if(cg){const cat=cg.parentNode.getAttribute('data-cat');const nw=(catsSel.length===1&&catsSel[0]===cat)?[]:[cat];
+          openBD(ctx,back,Object.assign(keep(),{cats:nw,tab:'s',sc:[bg.querySelector('#catPop').scrollTop,bg.querySelector('.bbody').scrollTop]}));return;}
         const sk=e.target.closest('.bs');
         if(sk){openBD({kind:'sku',cat:ctx.cat,code:sk.getAttribute('data-code')},{cat:ctx.cat},keep());return;}
         const tg=e.target.closest('.btg');
