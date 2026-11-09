@@ -903,7 +903,7 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 
 /* Frozen product information + Grand Total: sales columns scroll underneath. */
 #zt,#t3table,#a5table{border-collapse:separate;border-spacing:0;table-layout:auto;}
-#zt .col-grand,#t3table .col-grand{position:sticky!important;left:733px!important;min-width:125px!important;width:125px!important;max-width:125px!important;z-index:19!important;background:#fff5e9!important;border-left:2px solid var(--accent)!important;border-right:3px solid #d5dce7!important;white-space:nowrap;}
+#zt .col-grand,#t3table .col-grand{position:sticky!important;left:643px!important;min-width:125px!important;width:125px!important;max-width:125px!important;z-index:19!important;background:#fff5e9!important;border-left:2px solid var(--accent)!important;border-right:3px solid #d5dce7!important;white-space:nowrap;}
 #zt thead .col-grand,#t3table thead .col-grand{z-index:45!important;background:#091828!important;color:#ffd7ad!important;}
 #zt tbody .col-grand,#t3table tbody .col-grand{z-index:19!important;}
 #zt .total-row .col-grand,#t3table .total-row .col-grand{z-index:25!important;background:#b76a21!important;color:white!important;}
@@ -4667,8 +4667,7 @@ function buildT3Header(){
     '<th class="col-sticky col-s3 prod-hdr" rowspan="2" data-t3key="category">Category</th>'+
     '<th class="col-sticky col-s4 prod-hdr" rowspan="2" data-t3key="brand">Brand</th>'+
     '<th class="col-sticky col-s5 r prod-hdr" rowspan="2" data-t3key="stock">Stock</th>'+
-    '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-t3key="totalDp">DP Value</th>'+
-    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">MTD Growth</th>';
+    '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-t3key="totalDp">DP Value</th>';
 
   let aH='',cH='';
   const Z_COLORS=['#3b82f6','#8b5cf6','#10b981','#f59e0b','#ef4444','#06b6d4','#ec4899'];
@@ -4691,7 +4690,7 @@ function buildT3Header(){
     if(IMS_SHOW)cH+='<th class="ims-h ims-tot-h r" data-t3key="ims:asm:'+asm+'" title="'+asm+' · IMS Total">IMS&nbsp;Total</th>';
   });
   // Grand Total fixed before sales columns
-  const fixedGrand='<th class="col-sticky col-grand r prod-hdr" rowspan="2" data-t3key="total" style="cursor:pointer;background:rgba(232,132,44,.15);color:#ffd7ad;">Grand Total &#x2195;</th>'+
+  const fixedGrand='<th class="col-sticky col-grand r prod-hdr" rowspan="2" data-t3key="total" style="cursor:pointer;background:rgba(232,132,44,.15);color:#ffd7ad;">Grand NSI &#x2195;</th>'+
     (IMS_SHOW?'<th class="ims-h ims-grand-h r prod-hdr" rowspan="2" data-t3key="ims:total" style="cursor:pointer;">Grand IMS &#x2195;</th>':'');
 
   zhRow.innerHTML=leftZ+fixedGrand+aH;
@@ -4816,9 +4815,8 @@ function renderT3Table(){
       '<td class="col-sticky col-s4"><span class="bd '+bc+'">'+(p.brand||'—')+'</span></td>'+
       '<td class="col-sticky col-s5 r '+sc+'">'+(np?'<span class="dash">n/a</span>':'<b>'+fN(p.stock)+'</b>')+'</td>'+
       '<td class="col-sticky col-s6 r dp-v">'+(np?'<span class="dash">n/a</span>':fC(p.totalDp))+'</td>'+
-      '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+productGrowthMarkup(p)+'</td>'+
-      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'</td>'+
-      imsCell(p._imsTotal||0,'ims-g')+
+      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'<div style="display:flex;justify-content:flex-end;margin-top:3px;">'+productGrowthMarkup(p)+'</div></td>'+
+      imsGCell(p)+
       asmCells+
     '</tr>';
   }).join('');
@@ -4832,7 +4830,6 @@ function renderT3Table(){
   html+='<td class="col-sticky col-s4 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  html+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   html+='<td class="col-sticky col-grand tr-grand r">'+fS(grandTotal)+'</td>';
   html+=imsTotCell(imsGT);
   asms.forEach(a=>{
@@ -5272,8 +5269,7 @@ function buildZoneTableHeader(){
     '<th class="col-sticky col-s3 prod-hdr" rowspan="2" data-zkey="category">Category</th>'+
     '<th class="col-sticky col-s4 prod-hdr" rowspan="2" data-zkey="brand">Brand</th>'+
     '<th class="col-sticky col-s5 r prod-hdr" rowspan="2" data-zkey="stock">Stock</th>'+
-    '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-zkey="totalDp">DP Value</th>'+
-    '<th class="col-sticky prod-hdr no-sort" rowspan="2" style="min-width:90px;left:643px;border-right:2px solid #c5d9e8;">MTD Growth</th>';
+    '<th class="col-sticky col-s6 r prod-hdr" rowspan="2" data-zkey="totalDp">DP Value</th>';
   let zH='',aH='';
   az.forEach((z,zi)=>{
     const col=Z_COLORS[DATA.zones.indexOf(z)%Z_COLORS.length]||'#3b82f6';
@@ -5294,7 +5290,7 @@ function buildZoneTableHeader(){
     if(IMS_SHOW)aH+='<th class="ims-h ims-tot-h r" data-zkey="ims:zone:'+z+'" title="'+z+' IMS Total">IMS&nbsp;Total</th>';
   });
   // Grand Total fixed before sales columns
-  const fixedGrand='<th class="col-sticky col-grand r prod-hdr" rowspan="2" data-zkey="total" style="cursor:pointer;">Grand Total &#x2195;</th>'+
+  const fixedGrand='<th class="col-sticky col-grand r prod-hdr" rowspan="2" data-zkey="total" style="cursor:pointer;">Grand NSI &#x2195;</th>'+
     (IMS_SHOW?'<th class="ims-h ims-grand-h r prod-hdr" rowspan="2" data-zkey="ims:total" style="cursor:pointer;">Grand IMS &#x2195;</th>':'');
   zhRow.innerHTML=leftZ+fixedGrand+zH;
   ashRow.innerHTML=aH;
@@ -5403,19 +5399,71 @@ function renderZoneTable(){
       '<td class="col-sticky col-s4"><span class="bd '+bc+'">'+(p.brand||'—')+'</span></td>'+
       '<td class="col-sticky col-s5 r '+sc+'">'+(np?'<span class="dash">n/a</span>':'<b>'+fN(p.stock)+'</b>')+'</td>'+
       '<td class="col-sticky col-s6 r dp-v">'+(np?'<span class="dash">n/a</span>':fC(p.totalDp))+'</td>'+
-      '<td class="col-sticky prio-cell" style="left:643px;border-right:2px solid #c5d9e8;">'+productGrowthMarkup(p)+'</td>'+
-      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'</td>'+
-      imsCell(p._imsTotal||0,'ims-g')+
+      '<td class="col-sticky col-grand r gt-cell">'+(p._total>0?fS(p._total):'<span class="dash">–</span>')+'<div style="display:flex;justify-content:flex-end;margin-top:3px;">'+productGrowthMarkup(p)+'</div></td>'+
+      imsGCell(p)+
       zoneCells+
     '</tr>';
   }).join('') + buildTotalsRow(az,zTotals,aTotals,grandTotal,imsT);
 }
 
+var _GR_MOI={January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11};
+var _GR_MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+var _grCache=null,_grCacheFor=null;
+/* Period the Gr/Degr chips compare: the month chosen in the Month filter (latest one if several; latest month with data if none)
+   against the calendar month before it. */
+function _grTarget(){
+  if(_grCacheFor!==DATA){
+    let best=-1;const byYear={};
+    (DATA.products||[]).forEach(p=>(p.monthly||[]).forEach(r=>{const mi=_GR_MOI[r.m];if(mi===undefined||!(+r.nsi>0))return;const k=(+r.y)*12+mi;if(k>best)best=k;if(byYear[r.y]===undefined||k>byYear[r.y])byYear[r.y]=k;}));
+    _grCache={best,byYear};_grCacheFor=DATA;
+  }
+  const sel=(s2.month||[]).filter(x=>_GR_MOI[x]!==undefined);
+  let k;
+  if(sel.length){
+    const mi=Math.max.apply(null,sel.map(x=>_GR_MOI[x]));
+    let yr=s2.year?+s2.year:Math.floor(_grCache.best/12);
+    if(!s2.year&&_grCache.best%12<mi)yr-=1;
+    k=yr*12+mi;
+  }else if(s2.year){k=_grCache.byYear[s2.year];if(k===undefined)return null;}
+  else k=_grCache.best;
+  if(!(k>=0))return null;
+  const y=Math.floor(k/12),mi2=k%12,pk=k-1;
+  return {y:y,m:_GR_MON[mi2],py:Math.floor(pk/12),pm:_GR_MON[((pk%12)+12)%12]};
+}
+function _grNsi(p,y,m){
+  let rows,t=0;
+  if(s2.asm){rows=(p.asmMonthly||[]).filter(r=>r.a===s2.asm&&(!s2.zone||r.z===s2.zone));}
+  else if(s2.zone){rows=(p.zoneMonthly||[]).filter(r=>r.z===s2.zone);}
+  else rows=p.monthly||[];
+  rows.forEach(r=>{if(+r.y===y&&r.m===m)t+=(+r.nsi||0);});
+  return t;
+}
+function _grIms(p,y,m){
+  try{
+    if(typeof imsZones!=='function'||typeof IMS_P==='undefined')return 0;
+    if(s2.asm)return imsAsm(p,s2.zone||null,s2.asm,y,[m]);
+    if(s2.zone)return imsZones(p,[s2.zone],y,[m]);
+    return imsZones(p,null,y,[m]);
+  }catch(e){return 0;}
+}
+function _grChip(cur,prev,t,label){
+  if(!(cur>0)&&!(prev>0))return '<span class="growth-na">—</span>';
+  const delta=cur-prev,pct=prev>0?delta/prev*100:100,up=delta>=0;
+  return '<span class="growth-chip '+(up?'growth-up':'growth-down')+'" title="'+label+': '+t.m+' vs '+t.pm+'"><b>'+(up?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%</b><small>'+(up?'+':'−')+fB(Math.abs(delta))+'</small></span>';
+}
 function productGrowthMarkup(p){
-  const arr=(p.monthly||[]).map(r=>({y:+r.y,m:r.m,n:+r.nsi||0,mi:({January:0,February:1,March:2,April:3,May:4,June:5,July:6,August:7,September:8,October:9,November:10,December:11})[r.m]})).filter(r=>r.mi!==undefined).sort((a,b)=>(a.y*12+a.mi)-(b.y*12+b.mi));
-  if(arr.length<2)return '<span class="growth-na">—</span>';
-  const cur=arr[arr.length-1],prev=arr[arr.length-2],delta=cur.n-prev.n,pct=prev.n?delta/prev.n*100:(cur.n?100:0),up=delta>=0;
-  return '<span class="growth-chip '+(up?'growth-up':'growth-down')+'"><b>'+(up?'▲':'▼')+' '+Math.abs(pct).toFixed(1)+'%</b><small>'+(up?'+':'−')+fB(Math.abs(delta))+'</small></span>';
+  const t=_grTarget();if(!t)return '<span class="growth-na">—</span>';
+  return _grChip(_grNsi(p,t.y,t.m),_grNsi(p,t.py,t.pm),t,'Primary sales');
+}
+function imsGrowthChip(p){
+  if(!IMS_SHOW)return '';
+  const t=_grTarget();if(!t)return '<span class="growth-na">—</span>';
+  return _grChip(_grIms(p,t.y,t.m),_grIms(p,t.py,t.pm),t,'IMS');
+}
+function imsGCell(p){
+  if(!IMS_SHOW)return '';
+  const v=p._imsTotal||0;
+  return '<td class="r ims-c ims-g">'+(v>0?fS(v):'<span class="dash">–</span>')+'<div style="display:flex;justify-content:flex-end;margin-top:3px;">'+imsGrowthChip(p)+'</div></td>';
 }
 function buildTotalsRow(az,zTotals,aTotals,grandTotal,imsT){
   imsT=imsT||{z:{},a:{},g:0};
@@ -5428,7 +5476,6 @@ function buildTotalsRow(az,zTotals,aTotals,grandTotal,imsT){
   row+='<td class="col-sticky col-s4 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky col-s5 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
   row+='<td class="col-sticky col-s6 tr-empty" style="background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;"></td>';
-  row+='<td class="col-sticky tr-empty" style="left:643px;background:linear-gradient(135deg,#0B1F3A 0%,#12294f 100%)!important;border-right:2px solid #c5d9e8;"></td>';
   row+='<td class="col-sticky col-grand tr-grand r">'+fS(grandTotal)+'</td>';
   row+=imsTotCell(imsT.g);
   az.forEach(z=>{
@@ -5468,6 +5515,7 @@ function mobileBadges(p){
         '<span class="bd '+bc+'">'+escM(p.brand||'—')+'</span>';
   if(TRADE_OFFER_CODES.has(p.code))h+='<span class="to-badge">FOCUS &amp; TRADE OFFER</span>';
   h+=productGrowthMarkup(p);
+  if(IMS_SHOW)h+='<span style="display:inline-flex;align-items:center;gap:3px;font-size:9px;color:#557;">IMS '+imsGrowthChip(p)+'</span>';
   if(p.inMaster===false)h+='<span class="npl">Not in PL</span>';
   return h;
 }
