@@ -712,6 +712,26 @@ td.asm-hl{background:#f0f6ff!important;color:var(--info)!important;font-weight:6
 .ps-tabs{display:flex;gap:6px;margin-bottom:10px;border-bottom:1px solid #e5ebf2;padding-bottom:7px;}
 .ps-tab{border:0;background:#edf2f8;color:#4d6079;border-radius:7px;padding:7px 10px;font-size:10px;font-weight:800;cursor:pointer;}
 .ps-tab.active{background:#0b1f3a;color:#fff;}
+.psx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:12px;}
+.psx-card{background:#fff;border:1px solid #e2e9f1;border-top:3px solid #4a7fbd;border-radius:12px;padding:10px 12px 6px;box-shadow:0 1px 6px rgba(11,31,58,.05);}
+.psx-card[data-asm]{cursor:pointer;transition:.15s;}
+.psx-card[data-asm]:hover{box-shadow:0 5px 16px rgba(11,31,58,.13);transform:translateY(-1px);}
+.psx-card.sel{border-top-color:#ef8c2f;box-shadow:0 0 0 2px rgba(239,140,47,.2);}
+.psx-hd{display:flex;align-items:baseline;justify-content:space-between;gap:8px;}
+.psx-hd b{font-size:13px;font-weight:900;color:#102b4d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.psx-hd span{font-size:9.5px;color:#7a8798;font-weight:700;white-space:nowrap;}
+.psx-st{display:flex;gap:18px;margin:5px 0 2px;}
+.psx-st small{display:block;font-size:8.5px;font-weight:800;letter-spacing:.4px;text-transform:uppercase;color:#7a8798;}
+.psx-st b{font-size:13px;font-weight:900;color:#16875f;}
+.psx-sv{overflow-x:auto;}
+.psx-sv svg{display:block;width:100%;min-width:430px;height:auto;}
+.psx-empty{grid-column:1/-1;padding:28px;text-align:center;color:#7a8798;font-size:12px;background:#f5f8fc;border-radius:10px;}
+.psx-note{grid-column:1/-1;font-size:11px;font-weight:700;color:#52657d;background:#f5f8fc;border-left:3px solid #ef8c2f;padding:7px 10px;border-radius:7px;}
+.psx-pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+.psx-pill{border:1px solid #d8e1ed;background:#f2f5f9;color:#34475f;border-radius:20px;padding:5px 11px;font-size:10.5px;font-weight:700;cursor:pointer;}
+.psx-pill:hover{background:#e8eff7;}
+.psx-pill.on{background:#ef8c2f;border-color:#ef8c2f;color:#fff;}
+@media(max-width:768px){.psx-grid{grid-template-columns:1fr;}}
 .ps-chart-wrap{position:relative;width:100%;height:370px;overflow:hidden;background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%);border:1px solid #edf1f6;border-radius:12px;padding:5px;}
 .ps-chart{width:100%;height:100%;display:block;}
 .ps-tooltip{position:fixed;display:none;z-index:9999;background:#0b1f3a;color:#fff;padding:7px 9px;border-radius:7px;font-size:10px;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.2);}
@@ -6126,10 +6146,16 @@ setTimeout(function(){
     </div>
     <div class="ps-tabs">
       <button class="ps-tab" data-pstab="asmTrend">ASM Trend</button>
+      <button class="ps-tab" data-pstab="distTrend">Distributor Trend</button>
       <button class="ps-tab active" data-pstab="asmList">ASM Contribution</button>
     </div>
+    <div id="psDistPane" style="display:none;">
+      <div id="psDistPills" class="psx-pills"></div>
+      <div id="psDistGrid" class="psx-grid"></div>
+    </div>
     <div id="psAsmTrendPane" style="display:none;">
-      <div class="ps-chart-wrap"><svg id="psAsmChart" class="ps-chart" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet"><text x="500" y="180" text-anchor="middle" fill="#8492a6" font-size="14">No sales data for the selected filters</text></svg></div>
+      <div id="psAsmGrid" class="psx-grid"></div>
+      <div class="ps-chart-wrap" style="display:none"><svg id="psAsmChart" class="ps-chart" viewBox="0 0 1000 360" preserveAspectRatio="xMidYMid meet"><text x="500" y="180" text-anchor="middle" fill="#8492a6" font-size="14">No sales data for the selected filters</text></svg></div>
     </div>
     <div id="psAsmListPane">
       <div class="ps-contrib-grid">
@@ -6257,15 +6283,21 @@ setTimeout(function(){
       d+=` C ${c1[0]} ${c1[1]}, ${c2[0]} ${c2[1]}, ${p2[0]} ${p2[1]}`;
     }return d;
   }
-  function svgChart(id, series, titleMode){
+  function svgChart(id, series, titleMode, opts){
     const svg=document.getElementById(id);if(!svg)return;
-    const ms=months9(),W=1000,H=390,L=88,R=28,T=54,B=58,cw=W-L-R,ch=H-T-B;
+    const ms=(opts&&opts.ms)||months9(),W=1000,H=390,L=88,R=28,T=54,B=58,cw=W-L-R,ch=H-T-B;
     if(!series.length){svg.innerHTML='<text x="500" y="180" text-anchor="middle" fill="#8492a6" font-size="14">No sales data for the selected filters</text>';return;}
     let max=Math.max(1,...series.flatMap(s=>s.vals));const nice=Math.pow(10,Math.floor(Math.log10(max)));max=Math.ceil(max/nice)*nice;
     const x=i=>L+(ms.length===1?cw/2:i*cw/(ms.length-1)),y=v=>T+ch-(v/max)*ch;let h='';
     for(let i=0;i<=4;i++){const v=max*i/4,yy=y(v);h+=`<line x1="${L}" y1="${yy}" x2="${W-R}" y2="${yy}" stroke="#e9eef5" stroke-width="1"/><text x="${L-10}" y="${yy+4}" text-anchor="end" fill="#718096" font-size="12">${fmt(v)}</text>`;}
     ms.forEach((m,i)=>{h+=`<line x1="${x(i)}" y1="${H-B+2}" x2="${x(i)}" y2="${H-B+6}" stroke="#b9c4d2"/><text x="${x(i)}" y="${H-15}" text-anchor="middle" fill="#53647a" font-size="12" font-weight="600">${m.m.slice(0,3)} '${String(m.y).slice(2)}</text>`;});
-    series.forEach((s,si)=>{const pts=s.vals.map((v,i)=>[x(i),y(v)]);h+=`<path fill="none" stroke="${s.color}" stroke-width="3.2" ${s.dash?'stroke-dasharray="9 6"':''} stroke-linecap="round" stroke-linejoin="round" d="${smoothPath(pts)}" data-ps-select="${esc(s.name)}"/>`;s.vals.forEach((v,i)=>{h+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#fff" stroke="${s.color}" stroke-width="2" data-ps-tip="${esc(s.name)}|${esc(ms[i].m+' '+ms[i].y)}|${fmt(v)}" data-ps-select="${esc(s.name)}"/>`;const showLabel=series.length===1 || i===s.vals.length-1;if(showLabel&&v>0){let yy=y(v)+(i%2===0?-12:17);yy=Math.max(T+10,Math.min(H-B-3,yy));h+=`<text x="${x(i)}" y="${yy}" text-anchor="middle" fill="${s.color}" font-size="11" font-weight="800" stroke="#fff" stroke-width="3.5" paint-order="stroke">${fmt(v)}</text>`;}});});
+    series.forEach((s,si)=>{const pts=s.vals.map((v,i)=>[x(i),y(v)]);h+=`<path fill="none" stroke="${s.color}" stroke-width="3.2" ${s.dash?'stroke-dasharray="9 6"':''} stroke-linecap="round" stroke-linejoin="round" d="${smoothPath(pts)}" data-ps-select="${esc(s.name)}"/>`;s.vals.forEach((v,i)=>{h+=`<circle cx="${x(i)}" cy="${y(v)}" r="4" fill="#fff" stroke="${s.color}" stroke-width="2" data-ps-tip="${esc(s.name)}|${esc(ms[i].m+' '+ms[i].y)}|${fmt(v)}" data-ps-select="${esc(s.name)}"/>`;const showLabel=!(opts&&opts.pills)&&(series.length===1 || i===s.vals.length-1);if(showLabel&&v>0){let yy=y(v)+(i%2===0?-12:17);yy=Math.max(T+10,Math.min(H-B-3,yy));h+=`<text x="${x(i)}" y="${yy}" text-anchor="middle" fill="${s.color}" font-size="11" font-weight="800" stroke="#fff" stroke-width="3.5" paint-order="stroke">${fmt(v)}</text>`;}});});
+    if(opts&&opts.pills){
+      const lb=v=>{const a=Math.abs(v);return a>=1e7?(v/1e7).toFixed(2)+'Cr':a>=1e5?(v/1e5).toFixed(2)+'L':a>=1e3?(v/1e3).toFixed(1)+'K':String(Math.round(v));};
+      ms.forEach((m,i)=>{const e=series.map(s=>({s,v:s.vals[i]})).filter(o=>o.v>0).sort((a,b)=>b.v-a.v);
+        e.forEach((o,k)=>{const t=lb(o.v),w=t.length*6.4+14,hh=18,cx=x(i),cy=y(o.v);
+          h+=`<text x="${cx.toFixed(1)}" y="${(k===0?cy-10:cy+17).toFixed(1)}" text-anchor="middle" fill="${o.s.color}" font-size="11" font-weight="700" stroke="#fff" stroke-width="3.5" paint-order="stroke" pointer-events="none">${t}</text>`;});});
+    }
     // Compact legend pills; long ZSM/ASM names are clipped without stretching the plot.
     let lx=L,ly=17;series.slice(0,8).forEach(s=>{const label=s.name.length>25?s.name.slice(0,23)+'…':s.name;const w=Math.min(220,Math.max(94,label.length*6+34));if(lx+w>W-R){lx=L;ly+=20;}h+=`<rect x="${lx}" y="${ly-10}" width="${w-5}" height="18" rx="8" fill="#f3f6fa" data-ps-select="${esc(s.name)}"/><line x1="${lx+8}" y1="${ly-1}" x2="${lx+20}" y2="${ly-1}" stroke="${s.color}" stroke-width="3" data-ps-select="${esc(s.name)}"/><text x="${lx+25}" y="${ly+3}" fill="#334760" font-size="10" font-weight="600" data-ps-select="${esc(s.name)}">${esc(label)}</text>`;lx+=w;});
     svg.setAttribute('viewBox',`0 0 ${W} ${H}`);svg.setAttribute('preserveAspectRatio','xMidYMid meet');svg.innerHTML=h;svg.querySelectorAll('[data-ps-tip]').forEach(el=>el.addEventListener('mousemove',e=>showTip(e,el.getAttribute('data-ps-tip'))));svg.querySelectorAll('[data-ps-tip]').forEach(el=>el.addEventListener('mouseleave',hideTip));if(titleMode==='cat')svg.querySelectorAll('[data-ps-select]').forEach(el=>el.addEventListener('click',e=>{e.stopPropagation();selectDetailCategory(el.getAttribute('data-ps-select'));}));
@@ -6285,12 +6317,11 @@ setTimeout(function(){
     ps.year=document.getElementById('psYear').value;ps.zone=document.getElementById('psZone').value;ps.asm=document.getElementById('psAsm').value;ps.cat=document.getElementById('psCat').value;
   }
   function renderZoneCards(){
-    const c=document.getElementById('psZoneCards');if(!c)return;const base=rows().filter(r=>{if(ps.year&&String(r.y)!==String(ps.year))return false;if(ps.asm&&r.a!==ps.asm)return false;if(ps.cat&&r.cat!==ps.cat)return false;return true;});
-    const totals={};base.forEach(r=>totals[r.z]=(totals[r.z]||0)+r.nsi);const names=Object.keys(totals).sort((a,b)=>totals[b]-totals[a]);
-    c.innerHTML=names.map(z=>`<div class="ps-zone-card ${selectedZone===z?'active':''}" data-zone="${esc(z)}"><div class="ps-zone-name">${esc(z)}</div><div class="ps-zone-val">${fmt(totals[z])}</div><div class="ps-zone-sub">9-month NSI sales</div></div>`).join('');
-    c.querySelectorAll('.ps-zone-card').forEach(el=>el.onclick=()=>{selectedZone=el.dataset.zone;ps.zone=selectedZone;selectedAsm='';selectedDetailCategory='';ps.asm='';document.getElementById('psDetailPanel').style.display='none';fillFilters();renderPrimarySalesTrend();});
+    const c=document.getElementById('psZoneCards');if(!c)return;const _w=psxWindow(),_ix={};_w.forEach((w,k)=>_ix[w.y+'|'+w.m]=k);const totals={};(DATA.products||[]).forEach(p=>{if(ps.cat&&p.category!==ps.cat)return;(p.custMonthly||[]).forEach(r=>{if(_ix[r.y+'|'+r.m]===undefined)return;totals[r.z]=(totals[r.z]||0)+(+r.nsi||0);});});const names=Object.keys(totals).filter(z=>totals[z]>0).sort((a,b)=>totals[b]-totals[a]);
+    c.innerHTML=names.map(z=>`<div class="ps-zone-card ${selectedZone===z?'active':''}" data-zone="${esc(z)}"><div class="ps-zone-name">${esc(z)}</div><div class="ps-zone-val">${fmt(totals[z])}</div><div class="ps-zone-sub">13-month NSI sales</div></div>`).join('');
+    c.querySelectorAll('.ps-zone-card').forEach(el=>el.onclick=()=>{selectedZone=el.dataset.zone;ps.zone=selectedZone;psSetMode('asmTrend');selectedAsm='';selectedDetailCategory='';ps.asm='';document.getElementById('psDetailPanel').style.display='none';fillFilters();renderPrimarySalesTrend();});
   }
-  function renderMain(){const rs=filtered();const label=ps.asm?ps.asm:(ps.zone?ps.zone:(ps.cat?'All Zones · '+ps.cat:'All Zones — Combined Sales'));document.getElementById('psMainTitle').textContent=label+' · Last 9 Months';const ms=months9();const vals=ms.map(mm=>rs.filter(r=>r.y===mm.y&&r.m===mm.m).reduce((sum,r)=>sum+(+r.nsi||0),0));const color=ps.asm?'#7a4cc2':(ps.zone?'#16875f':'#2d6cae');const series=vals.some(v=>v>0)?[{name:label,color,vals}]:[];try{const _ims=imsMainSeries(vals);if(_ims)series.push(_ims);}catch(e){console.error('IMS trend',e);}svgChart('psMainChart',series,'single');document.getElementById('psWindow').textContent=ms.length?ms[0].m+' '+ms[0].y+' → '+ms[ms.length-1].m+' '+ms[ms.length-1].y:'';}
+  function renderMain(){const win=psxWindow(),idx={};win.forEach((w,k)=>idx[w.y+'|'+w.m]=k);const label=(ps.zone?ps.zone:(ps.cat?'All Zones · '+ps.cat:'All Zones — Combined Sales'));const f=w=>w.m.slice(0,3)+" '"+String(w.y).slice(2);document.getElementById('psMainTitle').textContent=label+' · '+f(win[0])+' – '+f(win[win.length-1]);const vals=win.map(()=>0);(DATA.products||[]).forEach(p=>{if(ps.cat&&p.category!==ps.cat)return;(p.custMonthly||[]).forEach(r=>{if(ps.zone&&r.z!==ps.zone)return;const k=idx[r.y+'|'+r.m];if(k===undefined)return;vals[k]+=(+r.nsi||0);});});const color=(ps.zone?'#16875f':'#2d6cae');const series=vals.some(v=>v>0)?[{name:label,color,vals}]:[];try{const _ims=imsMainSeries(vals);if(_ims)series.push(_ims);}catch(e){console.error('IMS trend',e);}svgChart('psMainChart',series,'single',{ms:win,pills:true});document.getElementById('psWindow').textContent=win[0].m+' '+win[0].y+' → '+win[win.length-1].m+' '+win[win.length-1].y;}
   function renderContributionList(id,entries,emptyText){const el=document.getElementById(id);if(!el)return;if(!entries.length){el.innerHTML='<div class="ps-empty">'+emptyText+'</div>';return;}const total=entries.reduce((s,x)=>s+x[1],0)||1;el.innerHTML=entries.map((x,i)=>`<div class="ps-row"><div class="ps-rank">${i+1}</div><div><div class="ps-row-name">${esc(x[0])}</div><div class="ps-row-meta">${(x[1]/total*100).toFixed(1)}% contribution</div></div><div class="ps-row-val">${fmt(x[1])}</div></div>`).join('');}
   function renderAsmSection(){
     const z=selectedZone||ps.zone;if(!z){document.getElementById('psZoneTitle').textContent='ASM & Category Contribution';document.getElementById('psZoneSub').textContent='Select a Zone card above to drill into its ASMs';svgChart('psAsmChart',[]);renderContributionList('psAsmList',[],'Select a Zone card');renderContributionList('psCatList',[],'Select a Zone card');return;}
@@ -6301,16 +6332,16 @@ setTimeout(function(){
     renderContributionList('psCatList',catList,'No product categories for this selection');
   }
   function renderAsmDetail(){if(!selectedAsm)return;const z=selectedZone||ps.zone;const rs=rows().filter(r=>r.z===z&&r.a===selectedAsm&&(!ps.year||String(r.y)===String(ps.year))&&(!ps.cat||r.cat===ps.cat));const detailCat=selectedDetailCategory&&rs.some(r=>r.cat===selectedDetailCategory)?selectedDetailCategory:'';if(detailCat!==selectedDetailCategory)selectedDetailCategory=detailCat;const custRs=detailCat?rs.filter(r=>r.cat===detailCat):rs;document.getElementById('psDetailTitle').textContent=selectedAsm+' — Detailed Trend';document.getElementById('psDetailSub').textContent=(z||'')+' · 9-month Primary Sales'+(detailCat?' · Selected category drill-down: '+detailCat:' · Click a category line or legend to open a separate category + customer drill-down below');svgChart('psCatChart',seriesFor(rs,'cat').slice(0,10),'cat');svgChart('psCustChart',seriesFor(rs,'c').slice(0,8),'cust');const wrap=document.getElementById('psSelectedDetailWrap');if(!detailCat){wrap.style.display='none';return;}wrap.style.display='block';document.getElementById('psSelectedDetailNote').textContent='Selected category: '+detailCat+' · Customer trends below include only customers who sold this category';document.getElementById('psSelectedCustTitle').textContent='Customer Trend — '+detailCat;svgChart('psSelectedCatChart',seriesFor(rs.filter(r=>r.cat===detailCat),'cat'),'single');svgChart('psSelectedCustChart',seriesFor(custRs,'c'),'cust');}
-  function bindFilters(){['psYear','psZone','psAsm','psCat'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.onchange=()=>{ps.year=document.getElementById('psYear').value;ps.zone=document.getElementById('psZone').value;ps.asm=document.getElementById('psAsm').value;ps.cat=document.getElementById('psCat').value;selectedDetailCategory='';if(id==='psZone'){selectedZone=ps.zone;selectedAsm='';ps.asm='';document.getElementById('psSelectedDetailWrap').style.display='none';document.getElementById('psDetailPanel').style.display='none';}if(id==='psAsm'){selectedAsm=ps.asm;selectedZone=ps.zone||selectedZone;if(!ps.asm){document.getElementById('psSelectedDetailWrap').style.display='none';document.getElementById('psDetailPanel').style.display='none';}}fillFilters();renderPrimarySalesTrend();};});document.querySelectorAll('.ps-tab').forEach(b=>b.onclick=()=>{document.querySelectorAll('.ps-tab').forEach(x=>x.classList.remove('active'));b.classList.add('active');psMode=b.dataset.pstab;document.getElementById('psAsmTrendPane').style.display=psMode==='asmTrend'?'block':'none';document.getElementById('psAsmListPane').style.display=psMode==='asmList'?'block':'none';});}
+  function bindFilters(){['psYear','psZone','psAsm','psCat'].forEach(id=>{const e=document.getElementById(id);if(!e)return;e.onchange=()=>{ps.year=document.getElementById('psYear').value;ps.zone=document.getElementById('psZone').value;ps.asm=document.getElementById('psAsm').value;ps.cat=document.getElementById('psCat').value;selectedDetailCategory='';if(id==='psZone'){selectedZone=ps.zone;psSetMode('asmTrend');selectedAsm='';ps.asm='';document.getElementById('psSelectedDetailWrap').style.display='none';document.getElementById('psDetailPanel').style.display='none';}if(id==='psAsm'){selectedAsm=ps.asm;selectedZone=ps.zone||selectedZone;if(!ps.asm){document.getElementById('psSelectedDetailWrap').style.display='none';document.getElementById('psDetailPanel').style.display='none';}}if(id==='psAsm'&&ps.asm)psSetMode('distTrend');fillFilters();renderPrimarySalesTrend();};});document.querySelectorAll('.ps-tab').forEach(b=>b.onclick=()=>psSetMode(b.dataset.pstab));}
   /* ── IMS (secondary) overlay for this tab ── */
   function imsRowsT4(opts){
     opts=opts||{};
-    const ms=months9();const win=new Set(ms.map(m=>m.y+'|'+m.m));
+    const ms=opts.win||months9();const win=new Set(ms.map(m=>m.y+'|'+m.m));
     const catN=ps.cat?imsNorm(ps.cat):'';
     const pc={};(DATA.products||[]).forEach(p=>pc[String(p.code)]=imsNorm(p.category));
     return (IMS_RES.P||[]).filter(r=>{
       if(!win.has(r.y+'|'+r.m))return false;
-      if(ps.year&&String(r.y)!==String(ps.year))return false;
+      if(!opts.win&&ps.year&&String(r.y)!==String(ps.year))return false;
       if(!opts.anyZone&&ps.zone&&r.z!==ps.zone)return false;
       if(!opts.anyAsm&&ps.asm&&r.a!==ps.asm)return false;
       if(catN&&pc[r.code]!==catN&&imsNorm((IMS.pn[r.code]||[])[1])!==catN)return false;
@@ -6319,7 +6350,7 @@ setTimeout(function(){
   }
   /* IMS series added (dashed) to the main trend chart */
   function imsMainSeries(primaryVals){
-    const ms=months9();const ir=imsRowsT4();
+    const ms=psxWindow();const ir=imsRowsT4({win:ms,anyAsm:true});
     const ims=ms.map(mm=>ir.filter(r=>r.y===mm.y&&r.m===mm.m).reduce((s,r)=>s+r.v,0));
     const tp=(primaryVals||[]).reduce((a,b)=>a+b,0),ti=ims.reduce((a,b)=>a+b,0);
     const sub=document.getElementById('psMainSub');
@@ -6327,7 +6358,7 @@ setTimeout(function(){
     return ims.some(v=>v>0)?{name:'IMS (Secondary) · Delivered',color:'#0891b2',vals:ims,dash:true}:null;
   }
   function imsDecorateTab4(){
-    const zr=imsRowsT4({anyZone:true});const zt={};zr.forEach(r=>zt[r.z]=(zt[r.z]||0)+r.v);
+    const zr=imsRowsT4({anyZone:true,anyAsm:true,win:psxWindow()});const zt={};zr.forEach(r=>zt[r.z]=(zt[r.z]||0)+r.v);
     document.querySelectorAll('#psZoneCards .ps-zone-card').forEach(c=>{
       if(c.querySelector('.ps-zone-ims'))return;
       c.insertAdjacentHTML('beforeend','<div class="ps-zone-ims">IMS '+fmt(zt[c.dataset.zone]||0)+'</div>');
@@ -6340,9 +6371,67 @@ setTimeout(function(){
     });
   }
 
+  /* ── Separate ASM graphs and Distributor graphs (13 months, Primary / NSI) ── */
+  function psSetMode(mode){
+    psMode=mode;
+    document.querySelectorAll('.ps-tab').forEach(x=>x.classList.toggle('active',x.dataset.pstab===mode));
+    document.getElementById('psAsmTrendPane').style.display=mode==='asmTrend'?'block':'none';
+    document.getElementById('psDistPane').style.display=mode==='distTrend'?'block':'none';
+    document.getElementById('psAsmListPane').style.display=mode==='asmList'?'block':'none';
+  }
+  function psxWindow(){
+    let best=-1;(DATA.products||[]).forEach(p=>(p.custMonthly||[]).forEach(r=>{if((+r.nsi||0)>0){const k=r.y*12+MO.indexOf(r.m);if(k>best)best=k;}}));
+    const out=[];for(let i=12;i>=0;i--){const k=best-i;out.push({y:Math.floor(k/12),m:MO[((k%12)+12)%12]});}return out;
+  }
+  function psxSh(v){const a=Math.abs(v);return a>=1e7?(v/1e7).toFixed(2)+'Cr':a>=1e5?(v/1e5).toFixed(1)+'L':a>=1e3?(v/1e3).toFixed(a>=1e4?0:1)+'K':String(Math.round(v));}
+  function psxBars(vals,win){
+    const W=520,H=156,pT=20,pB=22,pL=6,pR=6,n=vals.length,bw=(W-pL-pR)/n,mx=Math.max.apply(null,vals.concat([1]));
+    let o='<svg viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="xMidYMid meet"><line x1="'+pL+'" x2="'+(W-pR)+'" y1="'+(H-pB)+'" y2="'+(H-pB)+'" stroke="#dfe7f1"/>';
+    vals.forEach((v,i)=>{
+      const last=i===n-1,bh=v>0?Math.max(2,(v/mx)*(H-pT-pB-2)):0,x=pL+i*bw+bw*.14,w=bw*.72,y=H-pB-bh;
+      o+='<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+w.toFixed(1)+'" height="'+bh.toFixed(1)+'" rx="2.5" fill="'+(last?'#ef8c2f':'#4a7fbd')+'"><title>'+win[i].m+' '+win[i].y+': '+fmt(v)+'</title></rect>';
+      o+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(y-4).toFixed(1)+'" text-anchor="middle" font-size="9.5" font-weight="800" fill="'+(v>0?(last?'#c9701a':'#1f3350'):'#b3bfce')+'">'+(v>0?psxSh(v):'0')+'</text>';
+      o+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(H-8)+'" text-anchor="middle" font-size="8.5" font-weight="'+(last?800:600)+'" fill="'+(last?'#1f3350':'#6b7a90')+'">'+win[i].m.slice(0,3)+'</text>';
+      if(i===0||win[i].m==='January')o+='<text x="'+(x+w/2).toFixed(1)+'" y="'+(H-0)+'" text-anchor="middle" font-size="7.5" font-weight="700" fill="#8a97aa">'+win[i].y+'</text>';
+    });
+    return o+'</svg>';
+  }
+  function psxCard(name,vals,win,cls,attr,sub){
+    const tot=vals.reduce((a,b)=>a+b,0),nz=vals.filter(v=>v>0).length,last=vals[vals.length-1];
+    return '<div class="psx-card '+(cls||'')+'" '+(attr||'')+'><div class="psx-hd"><b title="'+esc(name)+'">'+esc(name)+'</b>'+(sub?'<span>'+esc(sub)+'</span>':'')+'</div><div class="psx-st"><div><small>13-month total</small><b>'+fmt(tot)+'</b></div><div><small>Monthly avg</small><b>'+fmt(nz?tot/vals.length:0)+'</b></div><div><small>'+win[win.length-1].m.slice(0,3)+' '+win[win.length-1].y+'</small><b style="color:#c9701a">'+fmt(last)+'</b></div></div><div class="psx-sv">'+psxBars(vals,win)+'</div></div>';
+  }
+  function psxSelectAsm(name){selectedAsm=name;ps.asm=name;selectedDetailCategory='';psSetMode('distTrend');fillFilters();renderPrimarySalesTrend();}
+  function psxRender(){
+    const gA=document.getElementById('psAsmGrid'),gD=document.getElementById('psDistGrid'),pills=document.getElementById('psDistPills');if(!gA||!gD)return;
+    const win=psxWindow(),idx={};win.forEach((w,i)=>idx[w.y+'|'+w.m]=i);
+    let z=selectedZone||ps.zone;
+    if(!z&&ps.asm){const r=rows().find(r=>r.a===ps.asm);if(r)z=r.z;}
+    const msg=t=>'<div class="psx-empty">'+t+'</div>';
+    if(!z){gA.innerHTML=msg('Select a Zone card (or the Zone filter) to see each ASM\'s trend.');gD.innerHTML=msg('Select a Zone, then click an ASM graph or use the ASM filter to see its distributors.');pills.innerHTML='';return;}
+    const asmV={},distV={};const asmSel=ps.asm||'';
+    (DATA.products||[]).forEach(p=>{
+      if(ps.cat&&p.category!==ps.cat)return;
+      (p.custMonthly||[]).forEach(r=>{
+        if(r.z!==z)return;const i=idx[r.y+'|'+r.m];if(i===undefined)return;const v=+r.nsi||0;
+        (asmV[r.a]||(asmV[r.a]=win.map(()=>0)))[i]+=v;
+        if(asmSel&&r.a===asmSel)(distV[r.c]||(distV[r.c]=win.map(()=>0)))[i]+=v;
+      });
+    });
+    const sum=a=>a.reduce((x,y)=>x+y,0);
+    const asms=Object.keys(asmV).filter(a=>sum(asmV[a])>0).sort((a,b)=>sum(asmV[b])-sum(asmV[a]));
+    gA.innerHTML=asms.length?asms.map(a=>psxCard(a,asmV[a],win,a===asmSel?'sel':'','data-asm="'+esc(a)+'"','Click for distributors')).join(''):msg('No sales data for this selection.');
+    gA.querySelectorAll('.psx-card').forEach(c=>c.onclick=()=>psxSelectAsm(c.dataset.asm));
+    pills.innerHTML=asms.map(a=>'<button type="button" class="psx-pill'+(a===asmSel?' on':'')+'" data-asm="'+esc(a)+'">'+esc(a)+'</button>').join('');
+    pills.querySelectorAll('.psx-pill').forEach(b=>b.onclick=()=>psxSelectAsm(b.dataset.asm));
+    if(!asmSel){gD.innerHTML=msg('Click an ASM graph, an ASM button above, or use the ASM filter to see that ASM\'s distributors.');return;}
+    const ds=Object.keys(distV).filter(d=>sum(distV[d])>0).sort((a,b)=>sum(distV[b])-sum(distV[a]));
+    gD.innerHTML='<div class="psx-note">'+esc(asmSel)+' · '+ds.length+' billing distributor'+(ds.length===1?'':'s')+' · '+esc(win[0].m.slice(0,3)+" '"+String(win[0].y).slice(2))+' to '+esc(win[win.length-1].m.slice(0,3)+" '"+String(win[win.length-1].y).slice(2))+'</div>'+(ds.length?ds.map((d,i)=>psxCard(d,distV[d],win,'','','#'+(i+1))).join(''):msg('No distributor sales for this ASM in the period.'));
+  }
+
   window.renderPrimarySalesTrend=function(){
     if(!document.getElementById('tab4'))return;
     fillFilters();renderZoneCards();renderMain();renderAsmSection();
+    try{psxRender();}catch(e){console.error('ASM/Distributor graphs',e);}
     try{imsDecorateTab4();}catch(e){console.error('IMS trend',e);}
     if(selectedAsm)renderAsmDetail();
   };
